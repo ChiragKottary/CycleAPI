@@ -1,0 +1,140 @@
+using CycleAPI.Models.DTO;
+using CycleAPI.Models.DTO.Common;
+using CycleAPI.Models.Enums;
+using CycleAPI.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace CycleAPI.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class OrderController : ControllerBase
+    {
+        private readonly IOrderService _orderService;
+        private readonly ILogger<OrderController> _logger;
+
+        public OrderController(IOrderService orderService, ILogger<OrderController> logger)
+        {
+            _orderService = orderService;
+            _logger = logger;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin,Employee")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<PagedResult<OrderDto>>> GetFilteredOrders([FromQuery] OrderQueryParameters parameters)
+        {
+            _logger.LogInformation($"Getting filtered orders. Page: {parameters.Page}, PageSize: {parameters.PageSize}");
+            var pagedResult = await _orderService.GetFilteredOrdersAsync(parameters);
+            return Ok(pagedResult);
+        }
+
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<OrderDto>> GetOrderById(Guid id)
+        {
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+                return NotFound();
+
+            // Only allow admin/employee or the customer who owns the order
+            if (!User.IsInRole("Admin") && !User.IsInRole("Employee"))
+            {
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!Guid.TryParse(userIdStr, out var userId) || userId != order.CustomerId)
+                    return Forbid();
+            }
+
+            return Ok(order);
+        }
+
+        [HttpGet("number/{orderNumber}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<OrderDto>> GetOrderByNumber(string orderNumber)
+        {
+            var order = await _orderService.GetOrderByOrderNumberAsync(orderNumber);
+            if (order == null)
+                return NotFound();
+
+            // Only allow admin/employee or the customer who owns the order
+            if (!User.IsInRole("Admin") && !User.IsInRole("Employee"))
+            {
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!Guid.TryParse(userIdStr, out var userId) || userId != order.CustomerId)
+                    return Forbid();
+            }
+
+            return Ok(order);
+        }
+
+        [HttpGet("customer/{customerId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetCustomerOrders(Guid customerId)
+        {
+            // Only allow admin/employee or the customer themselves
+            if (!User.IsInRole("Admin") && !User.IsInRole("Employee"))
+            {
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!Guid.TryParse(userIdStr, out var userId) || userId != customerId)
+                    return Forbid();
+            }
+
+            var orders = await _orderService.GetCustomerOrdersAsync(customerId);
+            return Ok(orders);
+        }
+
+        [HttpGet("status/{status}")]
+        [Authorize(Roles = "Admin,Employee")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrdersByStatus(OrderStatus status)
+        {
+            var orders = await _orderService.GetOrdersByStatusAsync(status);
+            return Ok(orders);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
+        {
+            try
+            {
+                var order = await _orderService.CreateOrderAsync(createOrderDto);
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.OrderId }, order);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{id:guid}/status")]
+        [Authorize(Roles = "Admin,Employee")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] OrderStatus status)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdStr, out var userId))
+                return BadRequest("Invalid user ID");
+
+            var success = await _orderService.UpdateOrderStatusAsync(id, status, userId);
+            if (!success)
+                return NotFound();
+
+            return Ok();
+        }
+    }
+}

@@ -1,0 +1,6 @@
+@CycleAPI_HostAddress = http://localhost:5050
+
+GET {{CycleAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
