@@ -11,8 +11,8 @@
         public DateTime UpdatedAt { get; set; }
 
         public bool IsActive { get; set; }
-        public string SessionId { get; set; } // For guest cart tracking
-        public string Notes { get; set; }
+        public string? SessionId { get; set; } // For guest cart tracking
+        public string? Notes { get; set; }
 
         public Guid? LastAccessedByUserId { get; set; }
         public User LastAccessedByUser { get; set; }

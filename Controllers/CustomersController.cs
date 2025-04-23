@@ -13,16 +13,21 @@ namespace CycleAPI.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
+        private readonly ITokenRepository _tokenRepository;
         private readonly ILogger<CustomersController> _logger;
 
-        public CustomersController(ICustomerService customerService, ILogger<CustomersController> logger)
+        public CustomersController(
+            ICustomerService customerService,
+            ITokenRepository tokenRepository,
+            ILogger<CustomersController> logger)
         {
             _customerService = customerService;
+            _tokenRepository = tokenRepository;
             _logger = logger;
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<PagedResult<CustomerDto>>> GetFilteredCustomers([FromQuery] CustomerQueryParameters parameters)
         {
@@ -32,7 +37,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CustomerDto>> GetCustomerById(Guid id)
@@ -51,7 +56,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("email/{email}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CustomerDto>> GetCustomerByEmail(string email)
@@ -70,7 +75,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("search")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> SearchCustomers([FromQuery] string searchTerm)
         {
@@ -100,7 +105,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -124,7 +129,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpDelete("{id:guid}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -148,7 +153,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("{id:guid}/cart")]
-        [Authorize(Roles = "Admin,Customer")]
+        //[Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CartDto>> GetCustomerActiveCart(Guid id)
@@ -167,7 +172,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("{id:guid}/statistics")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CustomerStatisticsDto>> GetCustomerStatistics(Guid id)
@@ -194,6 +199,47 @@ namespace CycleAPI.Controllers
 
             var isValid = await _customerService.ValidateCustomerAsync(validationDto);
             return Ok(isValid);
+        }
+
+        [HttpPost("login")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CustomerAuthResponseDto>> Login([FromBody] CustomerAuthRequestDto request)
+        {
+            try
+            {
+                var (isValid, customer) = await _customerService.ValidateCustomerLoginAsync(request.Email, request.Password);
+                
+                if (!isValid || customer == null)
+                {
+                    ModelState.AddModelError("", "Email or password is incorrect.");
+                    return ValidationProblem(ModelState);
+                }
+
+                // Update last login date
+                await _customerService.UpdateCustomerLastLoginAsync(customer.CustomerId);
+
+                // Generate JWT token
+                var token = await _tokenRepository.CreateCustomerTokenAsync(customer);
+
+                var response = new CustomerAuthResponseDto
+                {
+                    CustomerId = customer.CustomerId,
+                    Email = customer.Email,
+                    FirstName = customer.FirstName,
+                    LastName = customer.LastName,
+                    Token = token
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error during customer login: {ex.Message}");
+                return StatusCode(500, "An error occurred during login.");
+            }
         }
     }
 }

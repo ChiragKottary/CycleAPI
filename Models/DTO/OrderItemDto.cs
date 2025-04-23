@@ -1,3 +1,5 @@
+using CycleAPI.Models.Domain;
+
 namespace CycleAPI.Models.DTO
 {
     public class OrderItemDto
@@ -12,5 +14,9 @@ namespace CycleAPI.Models.DTO
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        // Navigation properties
+        public Order? Order { get; set; }
+        public Cycle? Cycle { get; set; }
     }
 }

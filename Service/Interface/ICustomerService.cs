@@ -18,5 +18,7 @@ namespace CycleAPI.Service.Interface
         Task<PagedResult<CustomerDto>> GetFilteredCustomersAsync(CustomerQueryParameters parameters);
         Task<IEnumerable<OrderDto>> GetCustomerOrdersAsync(Guid customerId);
         Task<bool> ValidateCustomerAsync(CustomerValidationDto validationDto);
+        Task<bool> UpdateCustomerLastLoginAsync(Guid customerId);
+        Task<(bool isValid, CustomerDto? customer)> ValidateCustomerLoginAsync(string email, string password);
     }
 }

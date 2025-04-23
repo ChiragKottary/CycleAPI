@@ -12,15 +12,18 @@ namespace CycleAPI.Service.Implementation
         private readonly IOrderRepository _orderRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly ICycleRepository _cycleRepository;
+        private readonly ICartService _cartService;
 
         public OrderService(
             IOrderRepository orderRepository,
             ICustomerRepository customerRepository,
-            ICycleRepository cycleRepository)
+            ICycleRepository cycleRepository,
+            ICartService cartService)
         {
             _orderRepository = orderRepository;
             _customerRepository = customerRepository;
             _cycleRepository = cycleRepository;
+            _cartService = cartService;
         }
 
         public async Task<IEnumerable<OrderDto>> GetCustomerOrdersAsync(Guid customerId)
@@ -139,6 +142,99 @@ namespace CycleAPI.Service.Implementation
                 // Transaction rollback is handled inside CreateOrderAsync if an error occurs
                 throw;
             }
+        }
+
+        public async Task<OrderDto> CreateOrderFromCartAsync(CreateOrderFromCartDto createOrderDto)
+        {
+            if (createOrderDto == null)
+                throw new ArgumentNullException(nameof(createOrderDto));
+
+            var cart = await _cartService.GetCartByIdAsync(createOrderDto.CartId);
+            if (cart == null)
+                throw new KeyNotFoundException($"Cart with ID {createOrderDto.CartId} not found");
+
+            if (!cart.IsActive)
+                throw new InvalidOperationException("Cannot create order from inactive cart");
+
+            if (cart.CartItems == null || !cart.CartItems.Any())
+                throw new InvalidOperationException("Cannot create order from empty cart");
+
+            // Validate shipping information
+            if (string.IsNullOrWhiteSpace(createOrderDto.ShippingAddress))
+                throw new ArgumentException("Shipping address is required");
+            if (string.IsNullOrWhiteSpace(createOrderDto.ShippingCity))
+                throw new ArgumentException("Shipping city is required");
+            if (string.IsNullOrWhiteSpace(createOrderDto.ShippingState))
+                throw new ArgumentException("Shipping state is required");
+            if (string.IsNullOrWhiteSpace(createOrderDto.ShippingPostalCode))
+                throw new ArgumentException("Shipping postal code is required");
+
+            // Generate unique order number
+            var orderNumber = GenerateOrderNumber();
+
+            // Create new order
+            var order = new Order
+            {
+                OrderId = Guid.NewGuid(),
+                CustomerId = cart.CustomerId,
+                OrderNumber = orderNumber,
+                Status = OrderStatus.Pending,
+                ShippingAddress = createOrderDto.ShippingAddress.Trim(),
+                ShippingCity = createOrderDto.ShippingCity.Trim(),
+                ShippingState = createOrderDto.ShippingState.Trim(),
+                ShippingPostalCode = createOrderDto.ShippingPostalCode.Trim(),
+                Notes = createOrderDto.Notes?.Trim(),
+                OrderDate = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                OrderItems = new List<OrderItem>()
+            };
+
+            decimal totalAmount = 0;
+
+            // Convert cart items to order items
+            foreach (var cartItem in cart.CartItems)
+            {
+                var cycle = await _cycleRepository.GetByIdAsync(cartItem.CycleId);
+                if (cycle == null)
+                    throw new KeyNotFoundException($"Cycle with ID {cartItem.CycleId} not found");
+
+                if (!cycle.IsActive)
+                    throw new InvalidOperationException($"Cycle {cycle.ModelName} is not currently available for purchase");
+
+                if (cycle.StockQuantity < cartItem.Quantity)
+                    throw new InvalidOperationException($"Insufficient stock for cycle {cycle.ModelName}. Requested: {cartItem.Quantity}, Available: {cycle.StockQuantity}");
+
+                var orderItem = new OrderItem
+                {
+                    OrderItemId = Guid.NewGuid(),
+                    OrderId = order.OrderId,
+                    CycleId = cycle.CycleId,
+                    Quantity = cartItem.Quantity,
+                    UnitPrice = cycle.Price,
+                    Subtotal = cycle.Price * cartItem.Quantity,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                totalAmount += orderItem.Subtotal;
+                order.OrderItems.Add(orderItem);
+
+                // Update stock quantity
+                cycle.StockQuantity -= cartItem.Quantity;
+                await _cycleRepository.UpdateAsync(cycle);
+            }
+
+            order.TotalAmount = totalAmount;
+
+            // Save order
+            var createdOrder = await _orderRepository.CreateOrderAsync(order);
+
+            // Clear the cart after successful order creation
+            await _cartService.ClearCartAsync(cart.CartId);
+
+            return await GetOrderByIdAsync(createdOrder.OrderId) 
+                ?? throw new Exception("Failed to retrieve created order");
         }
 
         public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync(int page = 1, int pageSize = 50)

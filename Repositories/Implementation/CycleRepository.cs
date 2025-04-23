@@ -1,4 +1,4 @@
-﻿using CycleAPI.Data;
+﻿ using CycleAPI.Data;
 using CycleAPI.Models.Domain;
 using CycleAPI.Models.DTO;
 using CycleAPI.Models.DTO.Common;

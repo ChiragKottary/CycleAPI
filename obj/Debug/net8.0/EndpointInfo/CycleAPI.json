@@ -1566,6 +1566,77 @@
         }
       }
     },
+    "/api/Customers/login": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerAuthRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerAuthRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerAuthRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerAuthResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerAuthResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerAuthResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/CustomerService/profile": {
       "get": {
         "tags": [
@@ -1929,17 +2000,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Cycle"
+                "$ref": "#/components/schemas/CreateCycleRequestDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Cycle"
+                "$ref": "#/components/schemas/CreateCycleRequestDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Cycle"
+                "$ref": "#/components/schemas/CreateCycleRequestDto"
               }
             }
           }
@@ -2932,6 +3003,94 @@
         }
       }
     },
+    "/api/Order/from-cart": {
+      "post": {
+        "tags": [
+          "Order"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderFromCartDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderFromCartDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderFromCartDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Payment/create": {
       "post": {
         "tags": [
@@ -3325,6 +3484,22 @@
               "$ref": "#/components/schemas/CartItemDto"
             },
             "nullable": true
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "lastAccessedByUserId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "lastAccessedByUser": {
+            "$ref": "#/components/schemas/User"
+          },
+          "lastAccessedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3444,8 +3619,7 @@
           },
           "subtotal": {
             "type": "number",
-            "format": "double",
-            "readOnly": true
+            "format": "double"
           },
           "addedAt": {
             "type": "string",
@@ -3454,6 +3628,46 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "cart": {
+            "$ref": "#/components/schemas/Cart"
+          },
+          "cycle": {
+            "$ref": "#/components/schemas/Cycle"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateCycleRequestDto": {
+        "type": "object",
+        "properties": {
+          "modelName": {
+            "type": "string",
+            "nullable": true
+          },
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "typeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "costPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3478,6 +3692,47 @@
             "items": {
               "$ref": "#/components/schemas/CreateOrderItemDto"
             }
+          },
+          "shippingAddress": {
+            "maxLength": 200,
+            "minLength": 5,
+            "type": "string"
+          },
+          "shippingCity": {
+            "maxLength": 100,
+            "minLength": 2,
+            "type": "string"
+          },
+          "shippingState": {
+            "maxLength": 100,
+            "minLength": 2,
+            "type": "string"
+          },
+          "shippingPostalCode": {
+            "maxLength": 20,
+            "minLength": 5,
+            "type": "string"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateOrderFromCartDto": {
+        "required": [
+          "cartId",
+          "shippingAddress",
+          "shippingCity",
+          "shippingPostalCode",
+          "shippingState"
+        ],
+        "type": "object",
+        "properties": {
+          "cartId": {
+            "type": "string",
+            "format": "uuid"
           },
           "shippingAddress": {
             "maxLength": 200,
@@ -3601,6 +3856,10 @@
             "type": "string",
             "nullable": true
           },
+          "passwordHash": {
+            "type": "string",
+            "nullable": true
+          },
           "carts": {
             "type": "array",
             "items": {
@@ -3618,11 +3877,57 @@
         },
         "additionalProperties": false
       },
+      "CustomerAuthRequestDto": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerAuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CustomerCreateDto": {
         "required": [
           "email",
           "firstName",
-          "lastName"
+          "lastName",
+          "password"
         ],
         "type": "object",
         "properties": {
@@ -3672,6 +3977,11 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "password": {
+            "maxLength": 100,
+            "minLength": 6,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -3680,8 +3990,8 @@
         "type": "object",
         "properties": {
           "customerId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
           },
           "firstName": {
             "type": "string",
@@ -3734,6 +4044,20 @@
           "totalOrders": {
             "type": "integer",
             "format": "int32"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            },
+            "nullable": true
+          },
+          "carts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Cart"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4288,6 +4612,12 @@
             "type": "string",
             "format": "date-time"
           },
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "processedByUser": {
+            "$ref": "#/components/schemas/User"
+          },
           "orderItems": {
             "type": "array",
             "items": {
@@ -4426,6 +4756,12 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Order"
+          },
+          "cycle": {
+            "$ref": "#/components/schemas/Cycle"
           }
         },
         "additionalProperties": false

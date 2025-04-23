@@ -22,7 +22,7 @@ namespace CycleAPI.Service.Implementation
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<CartDto> GetActiveCartAsync(Guid customerId)
+        public async Task<CartDto?> GetActiveCartAsync(Guid customerId)
         {
             var cart = await _unitOfWork.Carts.GetActiveByCustomerIdAsync(customerId);
             if (cart == null)
@@ -34,14 +34,14 @@ namespace CycleAPI.Service.Implementation
             return await MapToCartDto(cart);
         }
 
-        public async Task<CartDto> CreateCartAsync(Guid customerId, string sessionId = null)
+        public async Task<CartDto> CreateCartAsync(Guid customerId, string? sessionId = null)
         {
-            var cart = await _unitOfWork.Carts.CreateCartAsync(customerId, sessionId);
+            var cart = await _unitOfWork.Carts.CreateCartAsync(customerId, sessionId ?? string.Empty);
             await LogCartActivity(cart.CartId, customerId, null, "CREATE", null, null);
             return await MapToCartDto(cart);
         }
 
-        public async Task<CartDto> GetCartByIdAsync(Guid cartId)
+        public async Task<CartDto?> GetCartByIdAsync(Guid cartId)
         {
             var cart = await _unitOfWork.Carts.GetByIdAsync(cartId);
             if (cart == null)
@@ -152,6 +152,12 @@ namespace CycleAPI.Service.Implementation
                     throw new ArgumentException("Cycle not found");
                 }
 
+                var cart = await _unitOfWork.Carts.GetByIdAsync(cartItem.CartId);
+                if (cart == null)
+                {
+                    throw new ArgumentException("Cart not found");
+                }
+
                 // Calculate the additional quantity needed
                 int quantityDifference = updateCartItemDto.Quantity - cartItem.Quantity;
                 if (quantityDifference > 0 && cycle.StockQuantity < quantityDifference)
@@ -159,16 +165,18 @@ namespace CycleAPI.Service.Implementation
                     throw new InvalidOperationException($"Not enough stock available. Currently available: {cycle.StockQuantity}");
                 }
 
-                var cart = await _unitOfWork.Carts.GetByIdAsync(cartItem.CartId);
                 int previousQuantity = cartItem.Quantity;
+                var updatedCartItem = await _unitOfWork.CartItems.UpdateAsync(cartItemId, updateCartItemDto.Quantity);
+                if (updatedCartItem == null)
+                {
+                    throw new InvalidOperationException("Failed to update cart item");
+                }
 
-                cartItem = await _unitOfWork.CartItems.UpdateAsync(cartItemId, updateCartItemDto.Quantity);
-
-                await LogCartActivity(cart.CartId, cart.CustomerId, cartItem.CycleId, "UPDATE",
+                await LogCartActivity(cart.CartId, cart.CustomerId, updatedCartItem.CycleId, "UPDATE",
                     updateCartItemDto.Quantity, previousQuantity);
 
                 await _unitOfWork.CommitAsync();
-                return MapToCartItemDto(cartItem, cycle);
+                return MapToCartItemDto(updatedCartItem, cycle);
             }
             catch
             {
@@ -189,8 +197,12 @@ namespace CycleAPI.Service.Implementation
                 }
 
                 var cart = await _unitOfWork.Carts.GetByIdAsync(cartItem.CartId);
-                int previousQuantity = cartItem.Quantity;
+                if (cart == null)
+                {
+                    throw new ArgumentException("Cart not found");
+                }
 
+                int previousQuantity = cartItem.Quantity;
                 await _unitOfWork.CartItems.DeleteAsync(cartItemId);
 
                 await LogCartActivity(cart.CartId, cart.CustomerId, cartItem.CycleId, "REMOVE",
@@ -214,6 +226,7 @@ namespace CycleAPI.Service.Implementation
                 if (cart == null)
                 {
                     throw new ArgumentException("Cart not found");
+                    
                 }
 
                 var cartItems = await _unitOfWork.CartItems.GetAllAsync(cartId);
@@ -241,7 +254,10 @@ namespace CycleAPI.Service.Implementation
             foreach (var item in cartItems)
             {
                 var cycle = await _unitOfWork.Cycles.GetByIdAsync(item.CycleId);
-                total += cycle.Price * item.Quantity;
+                if (cycle != null)
+                {
+                    total += cycle.Price * item.Quantity;
+                }
             }
 
             return total;
@@ -277,10 +293,35 @@ namespace CycleAPI.Service.Implementation
         {
             var (carts, totalCount) = await _unitOfWork.Carts.GetFilteredAsync(parameters);
             
-            var items = await Task.WhenAll(carts.Select(MapToCartDto));
+            var cartDtos = carts.Select(cart => new CartDto
+            {
+                CartId = cart.CartId,
+                CustomerId = cart.CustomerId,
+                CustomerName = cart.Customer != null ? $"{cart.Customer.FirstName} {cart.Customer.LastName}" : string.Empty,
+                CreatedAt = cart.CreatedAt,
+                UpdatedAt = cart.UpdatedAt,
+                IsActive = cart.IsActive,
+                SessionId = cart.SessionId,
+                Notes = cart.Notes,
+                TotalAmount = cart.CartItems?.Sum(ci => ci.Cycle.Price * ci.Quantity) ?? 0,
+                TotalItems = cart.CartItems?.Sum(ci => ci.Quantity) ?? 0,
+                CartItems = cart.CartItems?.Select(ci => new CartItemDto
+                {
+                    CartItemId = ci.CartItemId,
+                    CartId = ci.CartId,
+                    CycleId = ci.CycleId,
+                    CycleName = ci.Cycle.ModelName,
+                    UnitPrice = ci.Cycle.Price,
+                    Quantity = ci.Quantity,
+                    TotalPrice = ci.Cycle.Price * ci.Quantity,
+                    AddedAt = ci.AddedAt,
+                    UpdatedAt = ci.UpdatedAt
+                }).ToList() ?? new List<CartItemDto>()
+            }).ToList();
+
             return new PagedResult<CartDto>
             {
-                Items = items,
+                Items = cartDtos,
                 TotalItems = totalCount,
                 PageNumber = parameters.Page,
                 PageSize = parameters.PageSize
@@ -291,7 +332,7 @@ namespace CycleAPI.Service.Implementation
             int? quantity, int? previousQuantity)
         {
             var userId = GetCurrentUserId();
-            var ipAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+            var ipAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
 
             var activityLog = new CartActivityLog
             {
@@ -326,14 +367,17 @@ namespace CycleAPI.Service.Implementation
             foreach (var item in cartItems)
             {
                 var cycle = await _unitOfWork.Cycles.GetByIdAsync(item.CycleId);
-                cartItemDtos.Add(MapToCartItemDto(item, cycle));
+                if (cycle != null)
+                {
+                    cartItemDtos.Add(MapToCartItemDto(item, cycle));
+                }
             }
 
             return new CartDto
             {
                 CartId = cart.CartId,
                 CustomerId = cart.CustomerId,
-                CustomerName = $"{customer.FirstName} {customer.LastName}",
+                CustomerName = customer?.FirstName ?? string.Empty,
                 CreatedAt = cart.CreatedAt,
                 UpdatedAt = cart.UpdatedAt,
                 IsActive = cart.IsActive,
@@ -361,24 +405,9 @@ namespace CycleAPI.Service.Implementation
             };
         }
 
-        Task<bool> ICartService.RemoveItemFromCartAsync(Guid cartItemId)
+        public Task ExistsAsync(Guid cartId)
         {
-            throw new NotImplementedException();
-        }
-
-        Task<bool> ICartService.ClearCartAsync(Guid cartId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<PagedResult<CartDto>> ICartService.GetFilteredCartsAsync(CartQueryParameters parameters)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<bool> ICartService.ExistsAsync(Guid cartId)
-        {
-            throw new NotImplementedException();
+            return _unitOfWork.Carts.ExistsAsync(cartId);
         }
     }
 }

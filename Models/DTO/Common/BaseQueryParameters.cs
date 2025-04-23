@@ -4,8 +4,12 @@ namespace CycleAPI.Models.DTO.Common
 {
     public class BaseQueryParameters
     {
-        private const int MaxPageSize = 100;
-        private int _pageSize = 50;
+        // private const int MaxPageSize = 100;
+        // private int _pageSize = 50;
+        // private const int MaxPageSize = 50;
+        // private int _pageSize = 15;
+        private const int MaxPageSize = 35;
+        private int _pageSize = 7;
 
         public int Page { get; set; } = 1;
         

@@ -153,3 +153,5 @@ C:\Users\chkot\Desktop\CycleEnterprise\CycleAPI\CycleAPI\obj\Debug\net8.0\refint
 C:\Users\chkot\Desktop\CycleEnterprise\CycleAPI\CycleAPI\obj\Debug\net8.0\CycleAPI.pdb
 C:\Users\chkot\Desktop\CycleEnterprise\CycleAPI\CycleAPI\obj\Debug\net8.0\CycleAPI.genruntimeconfig.cache
 C:\Users\chkot\Desktop\CycleEnterprise\CycleAPI\CycleAPI\obj\Debug\net8.0\ref\CycleAPI.dll
+C:\Users\chkot\Desktop\CycleEnterprise\CycleAPI\CycleAPI\obj\Debug\net8.0\CycleAPI.sourcelink.json
+C:\Users\chkot\Desktop\CycleEnterprise\CycleAPI\CycleAPI\bin\Debug\net8.0\apis.json

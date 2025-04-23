@@ -91,6 +91,7 @@ namespace CycleAPI.Repositories.Implementation
                 .Include(c => c.Customer)
                 .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Cycle)
+                .AsNoTracking()
                 .AsQueryable();
 
             // Apply filters
@@ -121,7 +122,7 @@ namespace CycleAPI.Repositories.Implementation
                 var searchTerm = parameters.SearchTerm.ToLower();
                 query = query.Where(c => c.Customer.FirstName.ToLower().Contains(searchTerm) ||
                                        c.Customer.LastName.ToLower().Contains(searchTerm) ||
-                                       c.Notes.ToLower().Contains(searchTerm));
+                                       (c.Notes != null && c.Notes.ToLower().Contains(searchTerm)));
             }
 
             // Get total count before pagination
@@ -162,12 +163,13 @@ namespace CycleAPI.Repositories.Implementation
             return isAscending ? query.OrderBy(keySelector) : query.OrderByDescending(keySelector);
         }
 
-        public async Task<Cart> CreateCartAsync(Guid customerId, string notes)
+        public async Task<Cart> CreateCartAsync(Guid customerId, string sessionId)
         {
             var cart = new Cart
             {
                 CustomerId = customerId,
-                Notes = notes,
+                SessionId = sessionId,
+                Notes = string.Empty,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow

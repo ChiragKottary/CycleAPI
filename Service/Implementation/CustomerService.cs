@@ -72,7 +72,12 @@ namespace CycleAPI.Service.Implementation
                 Address = customerDto.Address,
                 City = customerDto.City,
                 State = customerDto.State,
-                PostalCode = customerDto.PostalCode
+                PostalCode = customerDto.PostalCode,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(customerDto.Password),
+                RegistrationDate = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
             };
 
             customer = await _customerRepository.CreateCustomerAsync(customer);
@@ -138,7 +143,10 @@ namespace CycleAPI.Service.Implementation
 
             var cart = await _cartRepository.GetActiveByCustomerIdAsync(customerId);
             if (cart == null)
-                throw new KeyNotFoundException($"No active cart found for customer {customerId}");
+            {
+                // Create a new cart if none exists
+                cart = await _cartRepository.CreateCartAsync(customerId, null);
+            }
 
             return MapToCartDto(cart);
         }
@@ -206,11 +214,24 @@ namespace CycleAPI.Service.Implementation
             };
         }
 
+        public async Task<bool> UpdateCustomerLastLoginAsync(Guid customerId)
+        {
+            var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
+            if (customer == null)
+                return false;
+
+            customer.LastLoginDate = DateTime.UtcNow;
+            await _customerRepository.UpdateCustomerAsync(customer);
+            await _customerRepository.SaveChangesAsync();
+            
+            return true;
+        }
+
         private static CustomerDto MapToCustomerDto(Customer customer)
         {
             return new CustomerDto
             {
-                CustomerId = customer.CustomerId.GetHashCode(),
+                CustomerId = customer.CustomerId,
                 FirstName = customer.FirstName,
                 LastName = customer.LastName,
                 Email = customer.Email,
@@ -261,6 +282,29 @@ namespace CycleAPI.Service.Implementation
         public async Task<bool> ExistsAsync(Guid id)
         {
             return await _customerRepository.CustomerExistsAsync(id);
+        }
+
+        //public async Task<bool> ValidateCustomerLoginAsync(string email, string password)
+        //{
+        //    var customer = await _customerRepository.GetCustomerByEmailAsync(email);
+        //    if (customer == null)
+        //        return false;
+
+        //    return BCrypt.Net.BCrypt.Verify(password, customer.PasswordHash);
+        //}
+
+        public async Task<(bool isValid, CustomerDto? customer)> ValidateCustomerLoginAsync(string email, string password)
+        {
+            var customer = await _customerRepository.GetCustomerByEmailAsync(email);
+            
+            if (customer == null || customer.PasswordHash == null || 
+                !BCrypt.Net.BCrypt.Verify(password, customer.PasswordHash))
+            {
+                return (false, null);
+            }
+
+            var customerDto = MapToCustomerDto(customer);
+            return (true, customerDto);
         }
     }
 }

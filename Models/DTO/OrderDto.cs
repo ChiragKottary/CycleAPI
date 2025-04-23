@@ -1,3 +1,4 @@
+using CycleAPI.Models.Domain;
 using CycleAPI.Models.Enums;
 
 namespace CycleAPI.Models.DTO
@@ -23,6 +24,10 @@ namespace CycleAPI.Models.DTO
         public DateTime? DeliveredDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        // Navigation properties
+        public Customer? Customer { get; set; }
+        public User? ProcessedByUser { get; set; }
         public List<OrderItemDto> OrderItems { get; set; } = new();
     }
 }

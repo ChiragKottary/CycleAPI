@@ -12,10 +12,10 @@ namespace CycleAPI.Service.Interface
         Task<IEnumerable<CartDto>> SearchCartsByCustomerNameAsync(string name);
         Task<CartItemDto> AddItemToCartAsync(Guid cartId, AddCartItemDto addCartItemDto);
         Task<CartItemDto> UpdateCartItemQuantityAsync(Guid cartItemId, UpdateCartItemDto updateCartItemDto);
-        Task<bool> RemoveItemFromCartAsync(Guid cartItemId);
-        Task<bool> ClearCartAsync(Guid cartId);
+        Task RemoveItemFromCartAsync(Guid cartItemId);
+        Task ClearCartAsync(Guid cartId);
         Task<decimal> CalculateCartTotalAsync(Guid cartId);
         Task<PagedResult<CartDto>> GetFilteredCartsAsync(CartQueryParameters parameters);
-        Task<bool> ExistsAsync(Guid cartId);
+        Task ExistsAsync(Guid cartId);
     }
 }

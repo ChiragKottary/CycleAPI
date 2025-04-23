@@ -16,6 +16,28 @@ namespace CycleAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add CORS configuration
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.WithOrigins(builder.Configuration["AllowedOrigins"]?.Split(',') ?? new[] { "http://localhost:3000" })
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                });
+
+                // Add a specific policy if needed
+                options.AddPolicy("CycleApiPolicy", policy =>
+                {
+                    policy.WithOrigins(builder.Configuration["AllowedOrigins"]?.Split(',') ?? new[] { "http://localhost:3000" })
+                          .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                          .WithHeaders("Content-Type", "Authorization", "Accept")
+                          .AllowCredentials()
+                          .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+                });
+            });
+
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -68,6 +90,9 @@ namespace CycleAPI
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IRazorpayService, RazorpayService>();
+            builder.Services.AddScoped<ICycleService, CycleService>();
+            builder.Services.AddScoped<ICycleTypeService, CycleTypeService>();
+            builder.Services.AddScoped<IBrandService, BrandService>();
 
             builder.Services.AddHttpContextAccessor();
 
@@ -81,6 +106,10 @@ namespace CycleAPI
             }
 
             app.UseHttpsRedirection();
+
+            // Add CORS middleware
+            app.UseCors();
+
             app.UseAuthentication();
             app.UseAuthorization();
 

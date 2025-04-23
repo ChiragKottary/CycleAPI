@@ -890,6 +890,46 @@
   },
   {
     "ContainingType": "CycleAPI.Controllers.CustomersController",
+    "Method": "Login",
+    "RelativePath": "api/Customers/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CycleAPI.Models.DTO.CustomerAuthRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CycleAPI.Models.DTO.CustomerAuthResponseDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 400
+      },
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 500
+      }
+    ]
+  },
+  {
+    "ContainingType": "CycleAPI.Controllers.CustomersController",
     "Method": "SearchCustomers",
     "RelativePath": "api/Customers/search",
     "HttpMethod": "GET",
@@ -1162,7 +1202,7 @@
     "Parameters": [
       {
         "Name": "cycle",
-        "Type": "CycleAPI.Models.Domain.Cycle",
+        "Type": "CycleAPI.Models.DTO.CreateCycleRequestDto",
         "IsRequired": true
       }
     ],
@@ -1704,6 +1744,50 @@
           "text/json"
         ],
         "StatusCode": 403
+      }
+    ]
+  },
+  {
+    "ContainingType": "CycleAPI.Controllers.OrderController",
+    "Method": "CreateOrderFromCart",
+    "RelativePath": "api/Order/from-cart",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "createOrderDto",
+        "Type": "CycleAPI.Models.DTO.CreateOrderFromCartDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CycleAPI.Models.DTO.OrderDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 201
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 400
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 404
       }
     ]
   },

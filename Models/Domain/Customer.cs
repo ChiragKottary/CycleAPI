@@ -19,6 +19,7 @@
         public string? PreferredLanguage { get; set; }
         public string? MarketingPreferences { get; set; }
         public string? ReferralSource { get; set; }
+        public string? PasswordHash { get; set; }
 
         // Navigation
         public ICollection<Cart> Carts { get; set; }

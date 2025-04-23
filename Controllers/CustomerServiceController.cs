@@ -20,7 +20,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("profile")]
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CustomerDto>> GetCustomerProfile()
@@ -45,7 +45,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpPut("profile")]
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -75,7 +75,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("cart")]
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CartDto>> GetActiveCart()
@@ -100,7 +100,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("statistics")]
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CustomerStatisticsDto>> GetCustomerStatistics()

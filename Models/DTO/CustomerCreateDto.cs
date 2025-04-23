@@ -32,5 +32,9 @@ namespace CycleAPI.Models.DTO
 
         [StringLength(20)]
         public string PostalCode { get; set; }
+
+        [Required]
+        [StringLength(100, MinimumLength = 6)]
+        public string Password { get; set; }
     }
 }

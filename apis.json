@@ -1,0 +1,4704 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+    "title": "CycleAPI",
+    "version": "1.0"
+    },
+    "paths": {
+    "/api/Auth/register/Employee": {
+    "post": {
+    "tags": [
+    "Auth"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/RegisterRequestDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/RegisterRequestDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/RegisterRequestDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK"
+    }
+    }
+    }
+    },
+    "/api/Auth/login": {
+    "post": {
+    "tags": [
+    "Auth"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/LoginRequestDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/LoginRequestDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/LoginRequestDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK"
+    }
+    }
+    }
+    },
+    "/api/Brand": {
+    "get": {
+    "tags": [
+    "Brand"
+    ],
+    "parameters": [
+    {
+    "name": "IsActive",
+    "in": "query",
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    {
+    "name": "CreatedFrom",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "CreatedTo",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "SearchTerm",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "MinCycles",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "MaxCycles",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "Page",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "PageSize",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "SortBy",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "SortDirection",
+    "in": "query",
+    "schema": {
+    "$ref": "#/components/schemas/SortDirection"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/BrandPagedResult"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/BrandPagedResult"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/BrandPagedResult"
+    }
+    }
+    }
+    }
+    }
+    },
+    "post": {
+    "tags": [
+    "Brand"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/Brand"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/Brand"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/Brand"
+    }
+    }
+    }
+    },
+    "responses": {
+    "201": {
+    "description": "Created"
+    }
+    }
+    }
+    },
+    "/api/Brand/{id}": {
+    "get": {
+    "tags": [
+    "Brand"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "put": {
+    "tags": [
+    "Brand"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/Brand"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/Brand"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/Brand"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "delete": {
+    "tags": [
+    "Brand"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Cart": {
+    "get": {
+    "tags": [
+    "Cart"
+    ],
+    "parameters": [
+    {
+    "name": "IsActive",
+    "in": "query",
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    {
+    "name": "MinAmount",
+    "in": "query",
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    },
+    {
+    "name": "MaxAmount",
+    "in": "query",
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    },
+    {
+    "name": "CreatedFrom",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "CreatedTo",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "CustomerName",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "Page",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "PageSize",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "SortBy",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "SortDirection",
+    "in": "query",
+    "schema": {
+    "$ref": "#/components/schemas/SortDirection"
+    }
+    },
+    {
+    "name": "SearchTerm",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDtoPagedResult"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDtoPagedResult"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDtoPagedResult"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Cart/{id}": {
+    "get": {
+    "tags": [
+    "Cart"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Cart/{cartId}/items": {
+    "post": {
+    "tags": [
+    "Cart"
+    ],
+    "parameters": [
+    {
+    "name": "cartId",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/AddCartItemDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/AddCartItemDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/AddCartItemDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CartItemDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartItemDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartItemDto"
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Cart/items/{cartItemId}": {
+    "put": {
+    "tags": [
+    "Cart"
+    ],
+    "parameters": [
+    {
+    "name": "cartItemId",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/UpdateCartItemDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/UpdateCartItemDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/UpdateCartItemDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CartItemDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartItemDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartItemDto"
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "delete": {
+    "tags": [
+    "Cart"
+    ],
+    "parameters": [
+    {
+    "name": "cartItemId",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "204": {
+    "description": "No Content"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Cart/{cartId}": {
+    "delete": {
+    "tags": [
+    "Cart"
+    ],
+    "parameters": [
+    {
+    "name": "cartId",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "204": {
+    "description": "No Content"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Cart/{cartId}/total": {
+    "get": {
+    "tags": [
+    "Cart"
+    ],
+    "parameters": [
+    {
+    "name": "cartId",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Customers": {
+    "get": {
+    "tags": [
+    "Customers"
+    ],
+    "parameters": [
+    {
+    "name": "City",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "State",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "RegisteredFrom",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "RegisteredTo",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "Email",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "HasActiveCart",
+    "in": "query",
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    {
+    "name": "MinOrders",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "MaxOrders",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "Phone",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "IsActive",
+    "in": "query",
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    {
+    "name": "Page",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "PageSize",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "SortBy",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "SortDirection",
+    "in": "query",
+    "schema": {
+    "$ref": "#/components/schemas/SortDirection"
+    }
+    },
+    {
+    "name": "SearchTerm",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDtoPagedResult"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDtoPagedResult"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDtoPagedResult"
+    }
+    }
+    }
+    }
+    }
+    },
+    "post": {
+    "tags": [
+    "Customers"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerCreateDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerCreateDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerCreateDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "201": {
+    "description": "Created",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Customers/{id}": {
+    "get": {
+    "tags": [
+    "Customers"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "put": {
+    "tags": [
+    "Customers"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerUpdateDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerUpdateDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerUpdateDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "delete": {
+    "tags": [
+    "Customers"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "204": {
+    "description": "No Content"
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Customers/email/{email}": {
+    "get": {
+    "tags": [
+    "Customers"
+    ],
+    "parameters": [
+    {
+    "name": "email",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Customers/search": {
+    "get": {
+    "tags": [
+    "Customers"
+    ],
+    "parameters": [
+    {
+    "name": "searchTerm",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    },
+    "application/json": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    },
+    "text/json": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Customers/{id}/cart": {
+    "get": {
+    "tags": [
+    "Customers"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Customers/{id}/statistics": {
+    "get": {
+    "tags": [
+    "Customers"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerStatisticsDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerStatisticsDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerStatisticsDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Customers/validate": {
+    "post": {
+    "tags": [
+    "Customers"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerValidationDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerValidationDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerValidationDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "type": "boolean"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/CustomerService/profile": {
+    "get": {
+    "tags": [
+    "CustomerService"
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "put": {
+    "tags": [
+    "CustomerService"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerUpdateDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerUpdateDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerUpdateDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerDto"
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/CustomerService/cart": {
+    "get": {
+    "tags": [
+    "CustomerService"
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CartDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/CustomerService/statistics": {
+    "get": {
+    "tags": [
+    "CustomerService"
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerStatisticsDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerStatisticsDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CustomerStatisticsDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Cycle": {
+    "get": {
+    "tags": [
+    "Cycle"
+    ],
+    "parameters": [
+    {
+    "name": "MinPrice",
+    "in": "query",
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    },
+    {
+    "name": "MaxPrice",
+    "in": "query",
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    },
+    {
+    "name": "BrandId",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    },
+    {
+    "name": "TypeId",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    },
+    {
+    "name": "IsActive",
+    "in": "query",
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    {
+    "name": "MinStock",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "MaxStock",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "Page",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "PageSize",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "SortBy",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "SortDirection",
+    "in": "query",
+    "schema": {
+    "$ref": "#/components/schemas/SortDirection"
+    }
+    },
+    {
+    "name": "SearchTerm",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CyclePagedResult"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CyclePagedResult"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CyclePagedResult"
+    }
+    }
+    }
+    }
+    }
+    },
+    "post": {
+    "tags": [
+    "Cycle"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/Cycle"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/Cycle"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/Cycle"
+    }
+    }
+    }
+    },
+    "responses": {
+    "201": {
+    "description": "Created"
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Cycle/{id}": {
+    "get": {
+    "tags": [
+    "Cycle"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "put": {
+    "tags": [
+    "Cycle"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/Cycle"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/Cycle"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/Cycle"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "delete": {
+    "tags": [
+    "Cycle"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "204": {
+    "description": "No Content"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/CycleType": {
+    "get": {
+    "tags": [
+    "CycleType"
+    ],
+    "parameters": [
+    {
+    "name": "IsActive",
+    "in": "query",
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    {
+    "name": "SearchTerm",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "CreatedFrom",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "CreatedTo",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "Page",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "PageSize",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "SortBy",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "SortDirection",
+    "in": "query",
+    "schema": {
+    "$ref": "#/components/schemas/SortDirection"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleTypePagedResult"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleTypePagedResult"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleTypePagedResult"
+    }
+    }
+    }
+    }
+    }
+    },
+    "post": {
+    "tags": [
+    "CycleType"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleType"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleType"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleType"
+    }
+    }
+    }
+    },
+    "responses": {
+    "201": {
+    "description": "Created"
+    }
+    }
+    }
+    },
+    "/api/CycleType/{id}": {
+    "get": {
+    "tags": [
+    "CycleType"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "put": {
+    "tags": [
+    "CycleType"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleType"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleType"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/CycleType"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    },
+    "delete": {
+    "tags": [
+    "CycleType"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Order": {
+    "get": {
+    "tags": [
+    "Order"
+    ],
+    "parameters": [
+    {
+    "name": "CustomerId",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    },
+    {
+    "name": "OrderNumber",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "Status",
+    "in": "query",
+    "schema": {
+    "$ref": "#/components/schemas/OrderStatus"
+    }
+    },
+    {
+    "name": "FromDate",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "ToDate",
+    "in": "query",
+    "schema": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    {
+    "name": "MinAmount",
+    "in": "query",
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    },
+    {
+    "name": "MaxAmount",
+    "in": "query",
+    "schema": {
+    "type": "number",
+    "format": "double"
+    }
+    },
+    {
+    "name": "CustomerName",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "Page",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "PageSize",
+    "in": "query",
+    "schema": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    {
+    "name": "SortBy",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    },
+    {
+    "name": "SortDirection",
+    "in": "query",
+    "schema": {
+    "$ref": "#/components/schemas/SortDirection"
+    }
+    },
+    {
+    "name": "SearchTerm",
+    "in": "query",
+    "schema": {
+    "type": "string"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDtoPagedResult"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDtoPagedResult"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDtoPagedResult"
+    }
+    }
+    }
+    }
+    }
+    },
+    "post": {
+    "tags": [
+    "Order"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CreateOrderDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/CreateOrderDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/CreateOrderDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "201": {
+    "description": "Created",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Order/{id}": {
+    "get": {
+    "tags": [
+    "Order"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Order/number/{orderNumber}": {
+    "get": {
+    "tags": [
+    "Order"
+    ],
+    "parameters": [
+    {
+    "name": "orderNumber",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Order/customer/{customerId}": {
+    "get": {
+    "tags": [
+    "Order"
+    ],
+    "parameters": [
+    {
+    "name": "customerId",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    },
+    "application/json": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    },
+    "text/json": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    }
+    }
+    },
+    "403": {
+    "description": "Forbidden",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Order/status/{status}": {
+    "get": {
+    "tags": [
+    "Order"
+    ],
+    "parameters": [
+    {
+    "name": "status",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "$ref": "#/components/schemas/OrderStatus"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    },
+    "application/json": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    },
+    "text/json": {
+    "schema": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderDto"
+    }
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Order/{id}/status": {
+    "put": {
+    "tags": [
+    "Order"
+    ],
+    "parameters": [
+    {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "format": "uuid"
+    }
+    }
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderStatus"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderStatus"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/OrderStatus"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK"
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    },
+    "404": {
+    "description": "Not Found",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Payment/create": {
+    "post": {
+    "tags": [
+    "Payment"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentCreateRequestDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentCreateRequestDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentCreateRequestDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentDto"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentDto"
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Payment/verify": {
+    "post": {
+    "tags": [
+    "Payment"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentVerificationDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentVerificationDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/PaymentVerificationDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "type": "boolean"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "type": "boolean"
+    }
+    }
+    }
+    },
+    "400": {
+    "description": "Bad Request",
+    "content": {
+    "text/plain": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/ProblemDetails"
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "/api/Stock/CycleStocksAdjustment": {
+    "post": {
+    "tags": [
+    "Stock"
+    ],
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/AddStocksRequestDto"
+    }
+    },
+    "text/json": {
+    "schema": {
+    "$ref": "#/components/schemas/AddStocksRequestDto"
+    }
+    },
+    "application/*+json": {
+    "schema": {
+    "$ref": "#/components/schemas/AddStocksRequestDto"
+    }
+    }
+    }
+    },
+    "responses": {
+    "200": {
+    "description": "OK"
+    }
+    }
+    }
+    }
+    },
+    "components": {
+    "schemas": {
+    "AddCartItemDto": {
+    "required": [
+    "cycleId",
+    "quantity"
+    ],
+    "type": "object",
+    "properties": {
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "quantity": {
+    "maximum": 2147483647,
+    "minimum": 1,
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    "additionalProperties": false
+    },
+    "AddStocksRequestDto": {
+    "type": "object",
+    "properties": {
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "quantity": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "userId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "movementType": {
+    "$ref": "#/components/schemas/MovementType"
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "Brand": {
+    "type": "object",
+    "properties": {
+    "brandId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "brandName": {
+    "type": "string",
+    "nullable": true
+    },
+    "description": {
+    "type": "string",
+    "nullable": true
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "isActive": {
+    "type": "boolean"
+    },
+    "cycles": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/Cycle"
+    },
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "BrandPagedResult": {
+    "type": "object",
+    "properties": {
+    "items": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/Brand"
+    },
+    "nullable": true
+    },
+    "totalItems": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageNumber": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageSize": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "totalPages": {
+    "type": "integer",
+    "format": "int32",
+    "readOnly": true
+    },
+    "hasPreviousPage": {
+    "type": "boolean",
+    "readOnly": true
+    },
+    "hasNextPage": {
+    "type": "boolean",
+    "readOnly": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "Cart": {
+    "type": "object",
+    "properties": {
+    "cartId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "customerId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "customer": {
+    "$ref": "#/components/schemas/Customer"
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "isActive": {
+    "type": "boolean"
+    },
+    "sessionId": {
+    "type": "string",
+    "nullable": true
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    },
+    "lastAccessedByUserId": {
+    "type": "string",
+    "format": "uuid",
+    "nullable": true
+    },
+    "lastAccessedByUser": {
+    "$ref": "#/components/schemas/User"
+    },
+    "lastAccessedAt": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "cartItems": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CartItem"
+    },
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CartDto": {
+    "type": "object",
+    "properties": {
+    "cartId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "customerId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "customerName": {
+    "type": "string",
+    "nullable": true
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "isActive": {
+    "type": "boolean"
+    },
+    "sessionId": {
+    "type": "string",
+    "nullable": true
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    },
+    "totalAmount": {
+    "type": "number",
+    "format": "double"
+    },
+    "totalItems": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "cartItems": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CartItemDto"
+    },
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CartDtoPagedResult": {
+    "type": "object",
+    "properties": {
+    "items": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CartDto"
+    },
+    "nullable": true
+    },
+    "totalItems": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageNumber": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageSize": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "totalPages": {
+    "type": "integer",
+    "format": "int32",
+    "readOnly": true
+    },
+    "hasPreviousPage": {
+    "type": "boolean",
+    "readOnly": true
+    },
+    "hasNextPage": {
+    "type": "boolean",
+    "readOnly": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CartItem": {
+    "type": "object",
+    "properties": {
+    "cartItemId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cartId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cart": {
+    "$ref": "#/components/schemas/Cart"
+    },
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cycle": {
+    "$ref": "#/components/schemas/Cycle"
+    },
+    "quantity": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "unitPrice": {
+    "type": "number",
+    "format": "double"
+    },
+    "subtotal": {
+    "type": "number",
+    "format": "double"
+    },
+    "addedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    "additionalProperties": false
+    },
+    "CartItemDto": {
+    "type": "object",
+    "properties": {
+    "cartItemId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cartId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cycleName": {
+    "type": "string",
+    "nullable": true
+    },
+    "unitPrice": {
+    "type": "number",
+    "format": "double"
+    },
+    "quantity": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "totalPrice": {
+    "type": "number",
+    "format": "double"
+    },
+    "subtotal": {
+    "type": "number",
+    "format": "double",
+    "readOnly": true
+    },
+    "addedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    "additionalProperties": false
+    },
+    "CreateOrderDto": {
+    "required": [
+    "customerId",
+    "orderItems",
+    "shippingAddress",
+    "shippingCity",
+    "shippingPostalCode",
+    "shippingState"
+    ],
+    "type": "object",
+    "properties": {
+    "customerId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "orderItems": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CreateOrderItemDto"
+    }
+    },
+    "shippingAddress": {
+    "maxLength": 200,
+    "minLength": 5,
+    "type": "string"
+    },
+    "shippingCity": {
+    "maxLength": 100,
+    "minLength": 2,
+    "type": "string"
+    },
+    "shippingState": {
+    "maxLength": 100,
+    "minLength": 2,
+    "type": "string"
+    },
+    "shippingPostalCode": {
+    "maxLength": 20,
+    "minLength": 5,
+    "type": "string"
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CreateOrderItemDto": {
+    "required": [
+    "cycleId",
+    "quantity"
+    ],
+    "type": "object",
+    "properties": {
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "quantity": {
+    "maximum": 2147483647,
+    "minimum": 1,
+    "type": "integer",
+    "format": "int32"
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "Customer": {
+    "type": "object",
+    "properties": {
+    "customerId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "firstName": {
+    "type": "string",
+    "nullable": true
+    },
+    "lastName": {
+    "type": "string",
+    "nullable": true
+    },
+    "email": {
+    "type": "string",
+    "nullable": true
+    },
+    "phone": {
+    "type": "string",
+    "nullable": true
+    },
+    "address": {
+    "type": "string",
+    "nullable": true
+    },
+    "city": {
+    "type": "string",
+    "nullable": true
+    },
+    "state": {
+    "type": "string",
+    "nullable": true
+    },
+    "postalCode": {
+    "type": "string",
+    "nullable": true
+    },
+    "registrationDate": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "isActive": {
+    "type": "boolean"
+    },
+    "lastLoginDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "preferredLanguage": {
+    "type": "string",
+    "nullable": true
+    },
+    "marketingPreferences": {
+    "type": "string",
+    "nullable": true
+    },
+    "referralSource": {
+    "type": "string",
+    "nullable": true
+    },
+    "carts": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/Cart"
+    },
+    "nullable": true
+    },
+    "orders": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/Order"
+    },
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CustomerCreateDto": {
+    "required": [
+    "email",
+    "firstName",
+    "lastName"
+    ],
+    "type": "object",
+    "properties": {
+    "firstName": {
+    "maxLength": 50,
+    "minLength": 0,
+    "type": "string"
+    },
+    "lastName": {
+    "maxLength": 50,
+    "minLength": 0,
+    "type": "string"
+    },
+    "email": {
+    "maxLength": 100,
+    "minLength": 0,
+    "type": "string",
+    "format": "email"
+    },
+    "phone": {
+    "maxLength": 20,
+    "minLength": 0,
+    "type": "string",
+    "format": "tel",
+    "nullable": true
+    },
+    "address": {
+    "maxLength": 200,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    },
+    "city": {
+    "maxLength": 50,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    },
+    "state": {
+    "maxLength": 50,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    },
+    "postalCode": {
+    "maxLength": 20,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CustomerDto": {
+    "type": "object",
+    "properties": {
+    "customerId": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "firstName": {
+    "type": "string",
+    "nullable": true
+    },
+    "lastName": {
+    "type": "string",
+    "nullable": true
+    },
+    "fullName": {
+    "type": "string",
+    "nullable": true,
+    "readOnly": true
+    },
+    "email": {
+    "type": "string",
+    "nullable": true
+    },
+    "phone": {
+    "type": "string",
+    "nullable": true
+    },
+    "address": {
+    "type": "string",
+    "nullable": true
+    },
+    "city": {
+    "type": "string",
+    "nullable": true
+    },
+    "state": {
+    "type": "string",
+    "nullable": true
+    },
+    "postalCode": {
+    "type": "string",
+    "nullable": true
+    },
+    "registrationDate": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "hasActiveCart": {
+    "type": "boolean"
+    },
+    "totalOrders": {
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    "additionalProperties": false
+    },
+    "CustomerDtoPagedResult": {
+    "type": "object",
+    "properties": {
+    "items": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CustomerDto"
+    },
+    "nullable": true
+    },
+    "totalItems": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageNumber": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageSize": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "totalPages": {
+    "type": "integer",
+    "format": "int32",
+    "readOnly": true
+    },
+    "hasPreviousPage": {
+    "type": "boolean",
+    "readOnly": true
+    },
+    "hasNextPage": {
+    "type": "boolean",
+    "readOnly": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CustomerStatisticsDto": {
+    "type": "object",
+    "properties": {
+    "customerId": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "customerName": {
+    "type": "string",
+    "nullable": true
+    },
+    "totalOrders": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "totalSpent": {
+    "type": "number",
+    "format": "double"
+    },
+    "firstOrderDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "lastOrderDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "mostPurchasedBrand": {
+    "type": "string",
+    "nullable": true
+    },
+    "mostPurchasedCycleType": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CustomerUpdateDto": {
+    "type": "object",
+    "properties": {
+    "firstName": {
+    "maxLength": 50,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    },
+    "lastName": {
+    "maxLength": 50,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    },
+    "email": {
+    "maxLength": 100,
+    "minLength": 0,
+    "type": "string",
+    "format": "email",
+    "nullable": true
+    },
+    "phone": {
+    "maxLength": 20,
+    "minLength": 0,
+    "type": "string",
+    "format": "tel",
+    "nullable": true
+    },
+    "address": {
+    "maxLength": 200,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    },
+    "city": {
+    "maxLength": 50,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    },
+    "state": {
+    "maxLength": 50,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    },
+    "postalCode": {
+    "maxLength": 20,
+    "minLength": 0,
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CustomerValidationDto": {
+    "required": [
+    "email",
+    "phone",
+    "postalCode"
+    ],
+    "type": "object",
+    "properties": {
+    "email": {
+    "minLength": 1,
+    "type": "string",
+    "format": "email"
+    },
+    "phone": {
+    "minLength": 1,
+    "type": "string"
+    },
+    "postalCode": {
+    "minLength": 1,
+    "type": "string"
+    }
+    },
+    "additionalProperties": false
+    },
+    "Cycle": {
+    "type": "object",
+    "properties": {
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "modelName": {
+    "type": "string",
+    "nullable": true
+    },
+    "brandId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "typeId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "description": {
+    "type": "string",
+    "nullable": true
+    },
+    "price": {
+    "type": "number",
+    "format": "double"
+    },
+    "costPrice": {
+    "type": "number",
+    "format": "double"
+    },
+    "stockQuantity": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "reorderLevel": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "imageUrl": {
+    "type": "string",
+    "nullable": true
+    },
+    "isActive": {
+    "type": "boolean"
+    },
+    "warrantyMonths": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "brand": {
+    "$ref": "#/components/schemas/Brand"
+    },
+    "cycleType": {
+    "$ref": "#/components/schemas/CycleType"
+    },
+    "cartItems": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CartItem"
+    },
+    "nullable": true
+    },
+    "orderItems": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderItem"
+    },
+    "nullable": true
+    },
+    "stockMovements": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/StockMovement"
+    },
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CyclePagedResult": {
+    "type": "object",
+    "properties": {
+    "items": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/Cycle"
+    },
+    "nullable": true
+    },
+    "totalItems": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageNumber": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageSize": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "totalPages": {
+    "type": "integer",
+    "format": "int32",
+    "readOnly": true
+    },
+    "hasPreviousPage": {
+    "type": "boolean",
+    "readOnly": true
+    },
+    "hasNextPage": {
+    "type": "boolean",
+    "readOnly": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "CycleType": {
+    "type": "object",
+    "properties": {
+    "typeId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "typeName": {
+    "type": "string",
+    "nullable": true
+    },
+    "description": {
+    "type": "string",
+    "nullable": true
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    "additionalProperties": false
+    },
+    "CycleTypePagedResult": {
+    "type": "object",
+    "properties": {
+    "items": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/CycleType"
+    },
+    "nullable": true
+    },
+    "totalItems": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageNumber": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageSize": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "totalPages": {
+    "type": "integer",
+    "format": "int32",
+    "readOnly": true
+    },
+    "hasPreviousPage": {
+    "type": "boolean",
+    "readOnly": true
+    },
+    "hasNextPage": {
+    "type": "boolean",
+    "readOnly": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "LoginRequestDto": {
+    "type": "object",
+    "properties": {
+    "email": {
+    "type": "string",
+    "nullable": true
+    },
+    "password": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "MovementType": {
+    "enum": [
+    0,
+    1,
+    2
+    ],
+    "type": "integer",
+    "format": "int32"
+    },
+    "Order": {
+    "required": [
+    "orderNumber",
+    "shippingAddress",
+    "shippingCity",
+    "shippingPostalCode",
+    "shippingState"
+    ],
+    "type": "object",
+    "properties": {
+    "orderId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "customerId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "customer": {
+    "$ref": "#/components/schemas/Customer"
+    },
+    "orderNumber": {
+    "type": "string",
+    "nullable": true
+    },
+    "status": {
+    "$ref": "#/components/schemas/OrderStatus"
+    },
+    "totalAmount": {
+    "type": "number",
+    "format": "double"
+    },
+    "shippingAddress": {
+    "type": "string",
+    "nullable": true
+    },
+    "shippingCity": {
+    "type": "string",
+    "nullable": true
+    },
+    "shippingState": {
+    "type": "string",
+    "nullable": true
+    },
+    "shippingPostalCode": {
+    "type": "string",
+    "nullable": true
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    },
+    "processedByUserId": {
+    "type": "string",
+    "format": "uuid",
+    "nullable": true
+    },
+    "processedByUser": {
+    "$ref": "#/components/schemas/User"
+    },
+    "orderDate": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "processedDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "shippedDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "deliveredDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "orderItems": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderItem"
+    },
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "OrderDto": {
+    "type": "object",
+    "properties": {
+    "orderId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "customerId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "customerName": {
+    "type": "string",
+    "nullable": true
+    },
+    "orderNumber": {
+    "type": "string",
+    "nullable": true
+    },
+    "status": {
+    "$ref": "#/components/schemas/OrderStatus"
+    },
+    "totalAmount": {
+    "type": "number",
+    "format": "double"
+    },
+    "shippingAddress": {
+    "type": "string",
+    "nullable": true
+    },
+    "shippingCity": {
+    "type": "string",
+    "nullable": true
+    },
+    "shippingState": {
+    "type": "string",
+    "nullable": true
+    },
+    "shippingPostalCode": {
+    "type": "string",
+    "nullable": true
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    },
+    "processedByUserId": {
+    "type": "string",
+    "format": "uuid",
+    "nullable": true
+    },
+    "processedByUserName": {
+    "type": "string",
+    "nullable": true
+    },
+    "orderDate": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "processedDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "shippedDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "deliveredDate": {
+    "type": "string",
+    "format": "date-time",
+    "nullable": true
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "orderItems": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderItemDto"
+    },
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "OrderDtoPagedResult": {
+    "type": "object",
+    "properties": {
+    "items": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/OrderDto"
+    },
+    "nullable": true
+    },
+    "totalItems": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageNumber": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "pageSize": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "totalPages": {
+    "type": "integer",
+    "format": "int32",
+    "readOnly": true
+    },
+    "hasPreviousPage": {
+    "type": "boolean",
+    "readOnly": true
+    },
+    "hasNextPage": {
+    "type": "boolean",
+    "readOnly": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "OrderItem": {
+    "type": "object",
+    "properties": {
+    "orderItemId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "orderId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "order": {
+    "$ref": "#/components/schemas/Order"
+    },
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cycle": {
+    "$ref": "#/components/schemas/Cycle"
+    },
+    "quantity": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "unitPrice": {
+    "type": "number",
+    "format": "double"
+    },
+    "subtotal": {
+    "type": "number",
+    "format": "double"
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    "additionalProperties": false
+    },
+    "OrderItemDto": {
+    "type": "object",
+    "properties": {
+    "orderItemId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "orderId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cycleName": {
+    "type": "string",
+    "nullable": true
+    },
+    "quantity": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "unitPrice": {
+    "type": "number",
+    "format": "double"
+    },
+    "subtotal": {
+    "type": "number",
+    "format": "double"
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    }
+    },
+    "additionalProperties": false
+    },
+    "OrderStatus": {
+    "enum": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+    ],
+    "type": "integer",
+    "format": "int32"
+    },
+    "PaymentCreateRequestDto": {
+    "type": "object",
+    "properties": {
+    "orderId": {
+    "type": "string",
+    "format": "uuid"
+    }
+    },
+    "additionalProperties": false
+    },
+    "PaymentDto": {
+    "type": "object",
+    "properties": {
+    "orderId": {
+    "type": "string",
+    "nullable": true
+    },
+    "amount": {
+    "type": "number",
+    "format": "double"
+    },
+    "currency": {
+    "type": "string",
+    "nullable": true
+    },
+    "receipt": {
+    "type": "string",
+    "nullable": true
+    },
+    "razorpayKey": {
+    "type": "string",
+    "nullable": true
+    },
+    "razorpayOrderId": {
+    "type": "string",
+    "nullable": true
+    },
+    "razorpayPaymentId": {
+    "type": "string",
+    "nullable": true
+    },
+    "razorpaySignature": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "PaymentVerificationDto": {
+    "type": "object",
+    "properties": {
+    "orderId": {
+    "type": "string",
+    "nullable": true
+    },
+    "paymentId": {
+    "type": "string",
+    "nullable": true
+    },
+    "signature": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "ProblemDetails": {
+    "type": "object",
+    "properties": {
+    "type": {
+    "type": "string",
+    "nullable": true
+    },
+    "title": {
+    "type": "string",
+    "nullable": true
+    },
+    "status": {
+    "type": "integer",
+    "format": "int32",
+    "nullable": true
+    },
+    "detail": {
+    "type": "string",
+    "nullable": true
+    },
+    "instance": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": { }
+    },
+    "RegisterRequestDto": {
+    "type": "object",
+    "properties": {
+    "email": {
+    "type": "string",
+    "nullable": true
+    },
+    "password": {
+    "type": "string",
+    "nullable": true
+    },
+    "firstName": {
+    "type": "string",
+    "nullable": true
+    },
+    "lastName": {
+    "type": "string",
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "Role": {
+    "type": "object",
+    "properties": {
+    "roleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "roleName": {
+    "type": "string",
+    "nullable": true
+    },
+    "users": {
+    "type": "array",
+    "items": {
+    "$ref": "#/components/schemas/User"
+    },
+    "nullable": true
+    }
+    },
+    "additionalProperties": false
+    },
+    "SortDirection": {
+    "enum": [
+    0,
+    1
+    ],
+    "type": "integer",
+    "format": "int32"
+    },
+    "StockMovement": {
+    "type": "object",
+    "properties": {
+    "movementId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "cycleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "quantity": {
+    "type": "integer",
+    "format": "int32"
+    },
+    "movementType": {
+    "$ref": "#/components/schemas/MovementType"
+    },
+    "referenceId": {
+    "type": "string",
+    "format": "uuid",
+    "nullable": true
+    },
+    "userId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "notes": {
+    "type": "string",
+    "nullable": true
+    },
+    "movementDate": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "cycle": {
+    "$ref": "#/components/schemas/Cycle"
+    },
+    "user": {
+    "$ref": "#/components/schemas/User"
+    }
+    },
+    "additionalProperties": false
+    },
+    "UpdateCartItemDto": {
+    "required": [
+    "quantity"
+    ],
+    "type": "object",
+    "properties": {
+    "quantity": {
+    "maximum": 2147483647,
+    "minimum": 1,
+    "type": "integer",
+    "format": "int32"
+    }
+    },
+    "additionalProperties": false
+    },
+    "User": {
+    "type": "object",
+    "properties": {
+    "userId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "username": {
+    "type": "string",
+    "nullable": true
+    },
+    "passwordHash": {
+    "type": "string",
+    "nullable": true
+    },
+    "email": {
+    "type": "string",
+    "nullable": true
+    },
+    "firstName": {
+    "type": "string",
+    "nullable": true
+    },
+    "lastName": {
+    "type": "string",
+    "nullable": true
+    },
+    "roleId": {
+    "type": "string",
+    "format": "uuid"
+    },
+    "isActive": {
+    "type": "boolean"
+    },
+    "createdAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "updatedAt": {
+    "type": "string",
+    "format": "date-time"
+    },
+    "role": {
+    "$ref": "#/components/schemas/Role"
+    }
+    },
+    "additionalProperties": false
+    }
+    }
+    }
+    }

@@ -20,7 +20,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<PagedResult<CartDto>>> GetFilteredCarts([FromQuery] CartQueryParameters parameters)
         {
@@ -30,7 +30,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [Authorize(Roles = "Admin,Customer")]
+        //[Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CartDto>> GetCartById(Guid id)
@@ -44,7 +44,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpPost("{cartId:guid}/items")]
-        [Authorize(Roles = "Admin,Customer")]
+        //[Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -66,7 +66,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpPut("items/{cartItemId:guid}")]
-        [Authorize(Roles = "Admin,Customer")]
+        //[Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,7 +88,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpDelete("items/{cartItemId:guid}")]
-        [Authorize(Roles = "Admin,Customer")]
+        //[Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RemoveCartItem(Guid cartItemId)
@@ -105,7 +105,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpDelete("{cartId:guid}")]
-        [Authorize(Roles = "Admin,Customer")]
+        //[Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ClearCart(Guid cartId)
@@ -122,7 +122,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("{cartId:guid}/total")]
-        [Authorize(Roles = "Admin,Customer")]
+        //[Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<decimal>> GetCartTotal(Guid cartId)

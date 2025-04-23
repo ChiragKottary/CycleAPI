@@ -230,7 +230,9 @@ namespace CycleAPI.Data
                 entity.Property(c => c.SessionId)
                       .HasMaxLength(200);
 
-                entity.Property(c => c.Notes);
+                entity.Property(c => c.Notes)
+                      .IsRequired(false)
+                      .HasDefaultValue("");
 
                 entity.Property(c => c.LastAccessedAt);
 

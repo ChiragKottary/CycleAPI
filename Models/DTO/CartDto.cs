@@ -1,4 +1,6 @@
-﻿namespace CycleAPI.Models.DTO
+﻿using CycleAPI.Models.Domain;
+
+namespace CycleAPI.Models.DTO
 {
     public class CartDto
     {
@@ -13,5 +15,11 @@
         public decimal TotalAmount { get; set; }
         public int TotalItems { get; set; }
         public List<CartItemDto> CartItems { get; set; } = new();
+
+        // Navigation properties
+        public Customer? Customer { get; set; }
+        public Guid? LastAccessedByUserId { get; set; }
+        public User? LastAccessedByUser { get; set; }
+        public DateTime? LastAccessedAt { get; set; }
     }
 }

@@ -43,20 +43,29 @@ namespace CycleAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateCycle([FromBody] Cycle cycle)
+        public async Task<IActionResult> CreateCycle([FromBody] CreateCycleRequestDto cycle)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            var cycle1 = new Cycle
+            {
+                ModelName = cycle.ModelName,
+                TypeId = cycle.TypeId,
+                BrandId = cycle.BrandId,
+                Price = cycle.Price,
+                Description = cycle.Description,
+                ImageUrl = cycle.ImageUrl,
+            };
 
-            var createdCycle = await _cycleService.CreateCycleAsync(cycle);
+            var createdCycle = await _cycleService.CreateCycleAsync(cycle1);
             return CreatedAtAction(nameof(GetById), new { id = createdCycle.CycleId }, createdCycle);
         }
 
         [HttpPut("{id:Guid}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -76,7 +85,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpDelete("{id:Guid}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCycle(Guid id)

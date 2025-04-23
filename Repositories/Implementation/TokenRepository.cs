@@ -1,4 +1,5 @@
 ﻿using CycleAPI.Models.Domain;
+using CycleAPI.Models.DTO;
 using CycleAPI.Repositories.Interface;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -45,6 +46,30 @@ namespace CycleAPI.Repositories.Implementation
 
                 return new JwtSecurityTokenHandler().WriteToken(token);
             });
+        }
+
+        public async Task<string> CreateCustomerTokenAsync(CustomerDto customer)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not configured")));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, customer.CustomerId.ToString()),
+                new(ClaimTypes.Email, customer.Email),
+                new(ClaimTypes.Name, customer.FullName),
+                new(ClaimTypes.Role, "Customer")
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer not configured"),
+                audience: _configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT audience not configured"),
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(7),
+                signingCredentials: credentials
+            );
+
+            return await Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
         }
 
         public async Task<bool> ValidateTokenAsync(string token)

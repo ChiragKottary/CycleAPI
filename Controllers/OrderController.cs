@@ -23,7 +23,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Employee")]
+        //[Authorize(Roles = "Admin,Employee")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<PagedResult<OrderDto>>> GetFilteredOrders([FromQuery] OrderQueryParameters parameters)
         {
@@ -90,7 +90,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpGet("status/{status}")]
-        [Authorize(Roles = "Admin,Employee")]
+        //[Authorize(Roles = "Admin,Employee")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrdersByStatus(OrderStatus status)
@@ -120,7 +120,7 @@ namespace CycleAPI.Controllers
         }
 
         [HttpPut("{id:guid}/status")]
-        [Authorize(Roles = "Admin,Employee")]
+        //[Authorize(Roles = "Admin,Employee")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -135,6 +135,37 @@ namespace CycleAPI.Controllers
                 return NotFound();
 
             return Ok();
+        }
+
+        [HttpPost("from-cart")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<OrderDto>> CreateOrderFromCart([FromBody] CreateOrderFromCartDto createOrderDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Creating order from cart {createOrderDto.CartId}");
+                var order = await _orderService.CreateOrderFromCartAsync(createOrderDto);
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.OrderId }, order);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error creating order from cart: {ex.Message}");
+                return StatusCode(500, "An error occurred while creating the order");
+            }
         }
     }
 }
