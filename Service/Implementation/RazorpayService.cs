@@ -1,9 +1,11 @@
 using CycleAPI.Models.DTO;
+using CycleAPI.Models.Enums;
 using CycleAPI.Service.Interface;
 using Microsoft.Extensions.Configuration;
 using Razorpay.Api;
 using System.Security.Cryptography;
 using System.Text;
+using CycleAPI.Repositories.Interface;
 
 namespace CycleAPI.Service.Implementation
 {
@@ -11,13 +13,18 @@ namespace CycleAPI.Service.Implementation
     {
         private readonly IConfiguration _configuration;
         private readonly IOrderService _orderService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly string _keyId;
         private readonly string _keySecret;
 
-        public RazorpayService(IConfiguration configuration, IOrderService orderService)
+        public RazorpayService(
+            IConfiguration configuration, 
+            IOrderService orderService,
+            IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             _orderService = orderService;
+            _unitOfWork = unitOfWork;
             _keyId = _configuration["Razorpay:KeyId"];
             _keySecret = _configuration["Razorpay:KeySecret"];
         }
@@ -39,6 +46,22 @@ namespace CycleAPI.Service.Implementation
 
             Razorpay.Api.Order razorpayOrder = client.Order.Create(orderOptions);
 
+            // Create payment record
+            var payment = new Models.Domain.Payment
+            {
+                PaymentId = Guid.NewGuid(),
+                OrderId = orderId,
+                RazorpayOrderId = razorpayOrder["id"],
+                Amount = order.TotalAmount,
+                Currency = "INR",
+                Status = PaymentStatus.Pending,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.Payments.CreateAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
+
             return new PaymentDto
             {
                 OrderId = order.OrderId.ToString(),
@@ -58,6 +81,23 @@ namespace CycleAPI.Service.Implementation
 
             bool isValid = generatedSignature.Equals(paymentVerificationDto.Signature);
             
+            // Update payment record
+            var payment = await _unitOfWork.Payments.GetByRazorpayOrderIdAsync(paymentVerificationDto.OrderId);
+            if (payment != null)
+            {
+                payment.Status = isValid ? PaymentStatus.Success : PaymentStatus.Failed;
+                payment.RazorpayPaymentId = paymentVerificationDto.PaymentId;
+                payment.RazorpaySignature = paymentVerificationDto.Signature;
+                payment.UpdatedAt = DateTime.UtcNow;
+                if (isValid)
+                {
+                    payment.PaidAt = DateTime.UtcNow;
+                }
+
+                await _unitOfWork.Payments.UpdateAsync(payment);
+                await _unitOfWork.SaveChangesAsync();
+            }
+
             await UpdateOrderPaymentStatusAsync(paymentVerificationDto.OrderId, isValid);
             
             return isValid;
@@ -67,17 +107,15 @@ namespace CycleAPI.Service.Implementation
         {
             if (isSuccess)
             {
-                // Update order status to confirmed/paid
                 await _orderService.UpdateOrderStatusAsync(
                     Guid.Parse(orderId), 
-                    Models.Enums.OrderStatus.PaymentConfirmed);
+                    OrderStatus.PaymentConfirmed);
             }
             else
             {
-                // Update order status to payment failed
                 await _orderService.UpdateOrderStatusAsync(
                     Guid.Parse(orderId), 
-                    Models.Enums.OrderStatus.PaymentFailed);
+                    OrderStatus.PaymentFailed);
             }
         }
 

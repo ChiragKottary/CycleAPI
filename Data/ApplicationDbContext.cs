@@ -33,6 +33,8 @@ namespace CycleAPI.Data
 
         public DbSet<OrderItem> OrderItems { get; set; }
 
+        public DbSet<Payment> Payments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -472,6 +474,49 @@ namespace CycleAPI.Data
                 entity.HasOne(oi => oi.Cycle)
                     .WithMany()
                     .HasForeignKey(oi => oi.CycleId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.ToTable("payments");
+
+                entity.HasKey(e => e.PaymentId);
+
+                entity.Property(e => e.RazorpayOrderId)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.RazorpayPaymentId)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.RazorpaySignature)
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.Amount)
+                    .IsRequired()
+                    .HasColumnType("decimal(10,2)");
+
+                entity.Property(e => e.Currency)
+                    .IsRequired()
+                    .HasMaxLength(3);
+
+                entity.Property(e => e.Status)
+                    .IsRequired()
+                    .HasConversion<string>()
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired()
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(e => e.UpdatedAt)
+                    .IsRequired()
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(p => p.Order)
+                    .WithMany()
+                    .HasForeignKey(p => p.OrderId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

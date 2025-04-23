@@ -84,6 +84,7 @@ namespace CycleAPI
             builder.Services.AddScoped<ICartActivityLogRepository, CartActivityLogRepository>();
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddScoped<ICartService, CartService>();

@@ -10,12 +10,14 @@ namespace CycleAPI.Repositories.Implementation
         private readonly ApplicationDbContext _context;
         private IDbContextTransaction _transaction;
         private bool _disposed;
+        private IPaymentRepository _payments;
 
         public ICartRepository Carts { get; }
         public ICartItemRepository CartItems { get; }
         public ICycleRepository Cycles { get; }
         public ICustomerRepository Customers { get; }
         public ICartActivityLogRepository CartActivityLogs { get; }
+        public IPaymentRepository Payments => _payments ??= new PaymentRepository(_context);
 
         public UnitOfWork(
             ApplicationDbContext context,

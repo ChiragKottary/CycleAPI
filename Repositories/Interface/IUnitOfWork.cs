@@ -10,6 +10,7 @@ namespace CycleAPI.Repositories.Interface
         ICycleRepository Cycles { get; }
         ICustomerRepository Customers { get; }
         ICartActivityLogRepository CartActivityLogs { get; }
+        IPaymentRepository Payments { get; }
         Task<bool> SaveChangesAsync();
         Task BeginTransactionAsync();
         Task CommitAsync();
