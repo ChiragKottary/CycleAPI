@@ -1877,7 +1877,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "CycleAPI.Models.DTO.PaymentDto",
+        "Type": "CycleAPI.Models.DTO.PaymentOrderResponseDto",
         "MediaTypes": [
           "text/plain",
           "application/json",

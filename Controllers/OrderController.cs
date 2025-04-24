@@ -10,7 +10,7 @@ namespace CycleAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    // [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;

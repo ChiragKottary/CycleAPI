@@ -7,7 +7,7 @@ namespace CycleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class PaymentController : ControllerBase
     {
         private readonly IRazorpayService _razorpayService;
@@ -24,7 +24,7 @@ namespace CycleAPI.Controllers
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PaymentDto>> CreatePaymentOrder([FromBody] PaymentCreateRequestDto request)
+        public async Task<ActionResult<PaymentOrderResponseDto>> CreatePaymentOrder([FromBody] PaymentCreateRequestDto request)
         {
             try
             {

@@ -26,11 +26,11 @@ namespace CycleAPI
                           .AllowAnyHeader()
                           .AllowCredentials();
                 });
-
+             
                 // Add a specific policy if needed
                 options.AddPolicy("CycleApiPolicy", policy =>
                 {
-                    policy.WithOrigins(builder.Configuration["AllowedOrigins"]?.Split(',') ?? new[] { "http://localhost:3000" })
+                    policy.WithOrigins(builder.Configuration["AllowedOrigins"]?.Split(',') ?? new[] { "http://localhost:3000" , "http://127.0.0.1:5500" })
                           .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                           .WithHeaders("Content-Type", "Authorization", "Accept")
                           .AllowCredentials()
@@ -109,6 +109,7 @@ namespace CycleAPI
             app.UseHttpsRedirection();
 
             // Add CORS middleware
+
             app.UseCors();
 
             app.UseAuthentication();

@@ -4,7 +4,7 @@ namespace CycleAPI.Service.Interface
 {
     public interface IRazorpayService
     {
-        Task<PaymentDto> CreatePaymentOrderAsync(Guid orderId);
+        Task<PaymentOrderResponseDto> CreatePaymentOrderAsync(Guid orderId);
         Task<bool> VerifyPaymentAsync(PaymentVerificationDto paymentVerificationDto);
         Task UpdateOrderPaymentStatusAsync(string orderId, bool isSuccess);
     }

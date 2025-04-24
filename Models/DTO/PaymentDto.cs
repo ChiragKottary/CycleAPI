@@ -2,14 +2,28 @@ namespace CycleAPI.Models.DTO
 {
     public class PaymentDto
     {
-        public string OrderId { get; set; }
+        public required string OrderId { get; set; }
         public decimal Amount { get; set; }
         public string Currency { get; set; } = "INR";
-        public string Receipt { get; set; }
-        public string RazorpayKey { get; set; }
-        public string RazorpayOrderId { get; set; }
-        public string RazorpayPaymentId { get; set; }
-        public string RazorpaySignature { get; set; }
+        public required string Receipt { get; set; }
+        public required string RazorpayKey { get; set; }
+        public required string RazorpayOrderId { get; set; }
+        public string? RazorpayPaymentId { get; set; }
+        public string? RazorpaySignature { get; set; }
+        public required string PaymentStatus { get; set; }
+    }
+
+    // DTO for initial payment order creation
+    public class PaymentOrderResponseDto
+    {
+        public required string OrderId { get; set; }
+        public decimal Amount { get; set; }
+        public string Currency { get; set; } = "INR";
+        public required string Receipt { get; set; }
+        public required string RazorpayKey { get; set; }
+        public required string RazorpayOrderId { get; set; }
+        public string? RazorpayPaymentId { get; set; }
+        public string? RazorpaySignature { get; set; }
     }
 
     public class PaymentCreateRequestDto
@@ -19,8 +33,8 @@ namespace CycleAPI.Models.DTO
 
     public class PaymentVerificationDto
     {
-        public string OrderId { get; set; }
-        public string PaymentId { get; set; }
-        public string Signature { get; set; }
+        public required string OrderId { get; set; }
+        public required string PaymentId { get; set; }
+        public required string Signature { get; set; }
     }
 }

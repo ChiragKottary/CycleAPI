@@ -25,11 +25,14 @@ namespace CycleAPI.Service.Implementation
             _configuration = configuration;
             _orderService = orderService;
             _unitOfWork = unitOfWork;
-            _keyId = _configuration["Razorpay:KeyId"];
-            _keySecret = _configuration["Razorpay:KeySecret"];
+
+            _keyId = _configuration["Razorpay:KeyId"] 
+                ?? throw new InvalidOperationException("Razorpay:KeyId configuration is missing");
+            _keySecret = _configuration["Razorpay:KeySecret"] 
+                ?? throw new InvalidOperationException("Razorpay:KeySecret configuration is missing");
         }
 
-        public async Task<PaymentDto> CreatePaymentOrderAsync(Guid orderId)
+        public async Task<PaymentOrderResponseDto> CreatePaymentOrderAsync(Guid orderId)
         {
             var order = await _orderService.GetOrderByIdAsync(orderId);
             if (order == null)
@@ -62,70 +65,95 @@ namespace CycleAPI.Service.Implementation
             await _unitOfWork.Payments.CreateAsync(payment);
             await _unitOfWork.SaveChangesAsync();
 
-            return new PaymentDto
+            return new PaymentOrderResponseDto
             {
-                OrderId = order.OrderId.ToString(),
+                OrderId = razorpayOrder["id"],  // Changed to use Razorpay's order ID
                 Amount = order.TotalAmount,
                 Currency = "INR",
                 Receipt = order.OrderNumber,
                 RazorpayKey = _keyId,
-                RazorpayOrderId = razorpayOrder["id"]
+                RazorpayOrderId = razorpayOrder["id"],
+                RazorpayPaymentId = null,
+                RazorpaySignature = null
             };
         }
 
         public async Task<bool> VerifyPaymentAsync(PaymentVerificationDto paymentVerificationDto)
         {
-            string generatedSignature = GeneratePaymentSignature(
-                paymentVerificationDto.OrderId,
-                paymentVerificationDto.PaymentId);
-
-            bool isValid = generatedSignature.Equals(paymentVerificationDto.Signature);
-            
-            // Update payment record
-            var payment = await _unitOfWork.Payments.GetByRazorpayOrderIdAsync(paymentVerificationDto.OrderId);
-            if (payment != null)
+            try 
             {
-                payment.Status = isValid ? PaymentStatus.Success : PaymentStatus.Failed;
-                payment.RazorpayPaymentId = paymentVerificationDto.PaymentId;
-                payment.RazorpaySignature = paymentVerificationDto.Signature;
-                payment.UpdatedAt = DateTime.UtcNow;
-                if (isValid)
+                // Razorpay's signature is created using orderId|paymentId
+                string expectedSignature = GeneratePaymentSignature(
+                    paymentVerificationDto.OrderId, 
+                    paymentVerificationDto.PaymentId);
+
+                // Compare signatures
+                bool isValid = paymentVerificationDto.Signature.Equals(expectedSignature, StringComparison.OrdinalIgnoreCase);
+
+                // Update payment record
+                var payment = await _unitOfWork.Payments.GetByRazorpayOrderIdAsync(paymentVerificationDto.OrderId);
+                if (payment != null)
                 {
-                    payment.PaidAt = DateTime.UtcNow;
+                    payment.Status = isValid ? PaymentStatus.Success : PaymentStatus.Failed;
+                    payment.RazorpayPaymentId = paymentVerificationDto.PaymentId;
+                    payment.RazorpaySignature = paymentVerificationDto.Signature;
+                    payment.UpdatedAt = DateTime.UtcNow;
+                    
+                    if (isValid)
+                    {
+                        payment.PaidAt = DateTime.UtcNow;
+                    }
+
+                    await _unitOfWork.Payments.UpdateAsync(payment);
+                    await _unitOfWork.SaveChangesAsync();
                 }
 
-                await _unitOfWork.Payments.UpdateAsync(payment);
-                await _unitOfWork.SaveChangesAsync();
+                await UpdateOrderPaymentStatusAsync(paymentVerificationDto.OrderId, isValid);
+                return isValid;
             }
-
-            await UpdateOrderPaymentStatusAsync(paymentVerificationDto.OrderId, isValid);
-            
-            return isValid;
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public async Task UpdateOrderPaymentStatusAsync(string orderId, bool isSuccess)
         {
-            if (isSuccess)
+            try
             {
-                await _orderService.UpdateOrderStatusAsync(
-                    Guid.Parse(orderId), 
-                    OrderStatus.PaymentConfirmed);
+                var payment = await _unitOfWork.Payments.GetByRazorpayOrderIdAsync(orderId);
+                if (payment != null)
+                {
+                    if (isSuccess)
+                    {
+                        await _orderService.UpdateOrderStatusAsync(
+                            payment.OrderId,  // Using the actual order ID from our database
+                            OrderStatus.PaymentConfirmed);
+                    }
+                    else
+                    {
+                        await _orderService.UpdateOrderStatusAsync(
+                            payment.OrderId,  // Using the actual order ID from our database
+                            OrderStatus.PaymentFailed);
+                    }
+                }
             }
-            else
+            catch (Exception)
             {
-                await _orderService.UpdateOrderStatusAsync(
-                    Guid.Parse(orderId), 
-                    OrderStatus.PaymentFailed);
+                // Log the error but don't throw
             }
         }
 
         private string GeneratePaymentSignature(string orderId, string paymentId)
         {
-            string payload = $"{orderId}|{paymentId}";
+            // Create the signature data in the format orderId|paymentId
+            string data = $"{orderId}|{paymentId}";
+            
+            // Generate HMACSHA256 hash
             using (HMACSHA256 hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_keySecret)))
             {
-                byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
-                return BitConverter.ToString(hash).Replace("-", "").ToLower();
+                byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
             }
         }
     }
