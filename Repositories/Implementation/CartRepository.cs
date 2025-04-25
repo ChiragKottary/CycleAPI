@@ -21,7 +21,11 @@ namespace CycleAPI.Repositories.Implementation
         {
             return await _context.Carts
                 .Include(c => c.CartItems)
-                .ThenInclude(ci => ci.Cycle)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.Brand)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.CycleType)
                 .Include(c => c.Customer)
                 .FirstOrDefaultAsync(c => c.CartId == cartId);
         }
@@ -30,7 +34,11 @@ namespace CycleAPI.Repositories.Implementation
         {
             return await _context.Carts
                 .Include(c => c.CartItems)
-                .ThenInclude(ci => ci.Cycle)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.Brand)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.CycleType)
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId && c.IsActive);
         }
 
@@ -38,6 +46,12 @@ namespace CycleAPI.Repositories.Implementation
         {
             return await _context.Carts
                 .Include(c => c.Customer)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.Brand)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.CycleType)
                 .Where(c => c.IsActive)
                 .ToListAsync();
         }
@@ -46,6 +60,12 @@ namespace CycleAPI.Repositories.Implementation
         {
             return await _context.Carts
                 .Include(c => c.Customer)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.Brand)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.CycleType)
                 .Where(c => c.IsActive &&
                        (c.Customer.FirstName.Contains(name) ||
                         c.Customer.LastName.Contains(name)))
@@ -91,6 +111,10 @@ namespace CycleAPI.Repositories.Implementation
                 .Include(c => c.Customer)
                 .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.Brand)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Cycle)
+                        .ThenInclude(c => c.CycleType)
                 .AsNoTracking()
                 .AsQueryable();
 

@@ -17,14 +17,22 @@ namespace CycleAPI.Repositories.Implementation
         public async Task<CartItem?> GetByIdAsync(Guid cartItemId)
         {
             return await _context.CartItems
+                .Include(ci => ci.Cart)
                 .Include(ci => ci.Cycle)
+                    .ThenInclude(c => c.Brand)
+                .Include(ci => ci.Cycle)
+                    .ThenInclude(c => c.CycleType)
                 .FirstOrDefaultAsync(ci => ci.CartItemId == cartItemId);
         }
 
         public async Task<IEnumerable<CartItem>> GetAllAsync(Guid cartId)
         {
             return await _context.CartItems
+                .Include(ci => ci.Cart)
                 .Include(ci => ci.Cycle)
+                    .ThenInclude(c => c.Brand)
+                .Include(ci => ci.Cycle)
+                    .ThenInclude(c => c.CycleType)
                 .Where(ci => ci.CartId == cartId)
                 .ToListAsync();
         }
@@ -32,6 +40,11 @@ namespace CycleAPI.Repositories.Implementation
         public async Task<CartItem?> GetByCartAndCycleAsync(Guid cartId, Guid cycleId)
         {
             return await _context.CartItems
+                .Include(ci => ci.Cart)
+                .Include(ci => ci.Cycle)
+                    .ThenInclude(c => c.Brand)
+                .Include(ci => ci.Cycle)
+                    .ThenInclude(c => c.CycleType)
                 .FirstOrDefaultAsync(ci => ci.CartId == cartId && ci.CycleId == cycleId);
         }
 

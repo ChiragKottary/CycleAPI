@@ -210,34 +210,51 @@ namespace CycleAPI.Controllers
         {
             try
             {
+                _logger.LogInformation($"Customer login attempt for email: {request.Email}");
+
+                if (!ModelState.IsValid)
+                {
+                    return ValidationProblem(ModelState);
+                }
+
                 var (isValid, customer) = await _customerService.ValidateCustomerLoginAsync(request.Email, request.Password);
                 
                 if (!isValid || customer == null)
                 {
+                    _logger.LogWarning($"Invalid login attempt for email: {request.Email}");
                     ModelState.AddModelError("", "Email or password is incorrect.");
                     return ValidationProblem(ModelState);
                 }
 
-                // Update last login date
-                await _customerService.UpdateCustomerLastLoginAsync(customer.CustomerId);
-
-                // Generate JWT token
-                var token = await _tokenRepository.CreateCustomerTokenAsync(customer);
-
-                var response = new CustomerAuthResponseDto
+                try
                 {
-                    CustomerId = customer.CustomerId,
-                    Email = customer.Email,
-                    FirstName = customer.FirstName,
-                    LastName = customer.LastName,
-                    Token = token
-                };
+                    // Update last login date
+                    await _customerService.UpdateCustomerLastLoginAsync(customer.CustomerId);
 
-                return Ok(response);
+                    // Generate JWT token
+                    var token = await _tokenRepository.CreateCustomerTokenAsync(customer);
+
+                    var response = new CustomerAuthResponseDto
+                    {
+                        CustomerId = customer.CustomerId,
+                        Email = customer.Email,
+                        FirstName = customer.FirstName,
+                        LastName = customer.LastName,
+                        Token = token
+                    };
+
+                    _logger.LogInformation($"Customer login successful for email: {request.Email}");
+                    return Ok(response);
+                }
+                catch (Exception tokenEx)
+                {
+                    _logger.LogError($"Token generation failed for customer {request.Email}: {tokenEx.Message}");
+                    throw;
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error during customer login: {ex.Message}");
+                _logger.LogError($"Error during customer login for {request.Email}: {ex.Message}\nStack trace: {ex.StackTrace}");
                 return StatusCode(500, "An error occurred during login.");
             }
         }

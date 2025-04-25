@@ -45,8 +45,18 @@ namespace CycleAPI.Controllers
         [HttpPost]
         //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> Create([FromBody] CycleType cycleType)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] CreateCycleTypeRequestDto request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var cycleType = new CycleType
+            {
+                TypeName = request.TypeName,
+                Description = request.Description
+            };
+
             var createdType = await _cycleTypeService.CreateAsync(cycleType);
             return CreatedAtAction(nameof(GetById), new { id = createdType.TypeId }, createdType);
         }
@@ -56,8 +66,17 @@ namespace CycleAPI.Controllers
         //[Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] CycleType cycleType)
         {
+            if (id != cycleType.TypeId)
+            {
+                return BadRequest("ID mismatch between route and body");
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var updatedType = await _cycleTypeService.UpdateAsync(cycleType);
             if (updatedType == null)
             {
@@ -69,16 +88,16 @@ namespace CycleAPI.Controllers
         [HttpDelete]
         [Route("{id:Guid}")]
         //[Authorize(Roles = "Admin")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var deletedType = await _cycleTypeService.DeleteAsync(id);
-            if (deletedType == null)
+            var success = await _cycleTypeService.DeleteAsync(id);
+            if (!success)
             {
                 return NotFound();
             }
-            return Ok(deletedType);
+            return NoContent();
         }
     }
 }

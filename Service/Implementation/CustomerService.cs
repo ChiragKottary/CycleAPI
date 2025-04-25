@@ -4,6 +4,7 @@ using CycleAPI.Models.DTO.Common;
 using CycleAPI.Repositories.Interface;
 using CycleAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace CycleAPI.Service.Implementation
 {
@@ -32,20 +33,20 @@ namespace CycleAPI.Service.Implementation
             return customers.Select(MapToCustomerDto);
         }
 
-        public async Task<CustomerDto> GetCustomerByIdAsync(Guid id)
+        public async Task<CustomerDto?> GetCustomerByIdAsync(Guid id)
         {
             var customer = await _customerRepository.GetCustomerByIdAsync(id);
             if (customer == null)
-                throw new KeyNotFoundException($"Customer with ID {id} not found");
+                return null;
 
             return MapToCustomerDto(customer);
         }
 
-        public async Task<CustomerDto> GetCustomerByEmailAsync(string email)
+        public async Task<CustomerDto?> GetCustomerByEmailAsync(string email)
         {
             var customer = await _customerRepository.GetCustomerByEmailAsync(email);
             if (customer == null)
-                throw new KeyNotFoundException($"Customer with email {email} not found");
+                return null;
 
             return MapToCustomerDto(customer);
         }
@@ -53,7 +54,20 @@ namespace CycleAPI.Service.Implementation
         public async Task<IEnumerable<CustomerDto>> SearchCustomersAsync(string searchTerm)
         {
             var customers = await _customerRepository.SearchCustomersAsync(searchTerm);
-            return customers.Select(MapToCustomerDto);
+            var customerDtos = new List<CustomerDto>();
+
+            foreach (var customer in customers)
+            {
+                var customerDto = MapToCustomerDto(customer);
+                var activeCart = await _cartRepository.GetActiveByCustomerIdAsync(customer.CustomerId);
+                if (activeCart != null)
+                {
+                    customerDto.ActiveCart = MapToCartDto(activeCart);
+                }
+                customerDtos.Add(customerDto);
+            }
+
+            return customerDtos;
         }
 
         public async Task<CustomerDto> CreateCustomerAsync(CustomerCreateDto customerDto)
@@ -86,11 +100,11 @@ namespace CycleAPI.Service.Implementation
             return MapToCustomerDto(customer);
         }
 
-        public async Task<CustomerDto> UpdateCustomerAsync(Guid id, CustomerUpdateDto customerDto)
+        public async Task<CustomerDto?> UpdateCustomerAsync(Guid id, CustomerUpdateDto customerDto)
         {
             var customer = await _customerRepository.GetCustomerByIdAsync(id);
             if (customer == null)
-                throw new KeyNotFoundException($"Customer with ID {id} not found");
+                return null;
 
             // Check email uniqueness if it's being changed
             if (!string.IsNullOrEmpty(customerDto.Email) && 
@@ -136,16 +150,16 @@ namespace CycleAPI.Service.Implementation
             return success;
         }
 
-        public async Task<CartDto> GetCustomerActiveCartAsync(Guid customerId)
+        public async Task<CartDto?> GetCustomerActiveCartAsync(Guid customerId)
         {
             if (!await _customerRepository.CustomerExistsAsync(customerId))
-                throw new KeyNotFoundException($"Customer with ID {customerId} not found");
+                return null;
 
             var cart = await _cartRepository.GetActiveByCustomerIdAsync(customerId);
             if (cart == null)
             {
                 // Create a new cart if none exists
-                cart = await _cartRepository.CreateCartAsync(customerId, null);
+                cart = await _cartRepository.CreateCartAsync(customerId, string.Empty);
             }
 
             return MapToCartDto(cart);
@@ -157,12 +171,15 @@ namespace CycleAPI.Service.Implementation
                 throw new KeyNotFoundException($"Customer with ID {customerId} not found");
 
             var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
+            if (customer == null)
+                throw new InvalidOperationException($"Customer with ID {customerId} not found after existence check");
+                
             var orders = await _orderRepository.GetByCustomerIdAsync(customerId);
 
             var statistics = new CustomerStatisticsDto
             {
                 CustomerId = (int)customerId.GetHashCode(),
-                CustomerName = $"{customer.FirstName} {customer.LastName}",
+                CustomerName = $"{customer.FirstName ?? string.Empty} {customer.LastName ?? string.Empty}".Trim(),
                 TotalOrders = orders.Count(),
                 TotalSpent = orders.Sum(o => o.TotalAmount),
                 FirstOrderDate = orders.MinBy(o => o.OrderDate)?.OrderDate,
@@ -216,61 +233,113 @@ namespace CycleAPI.Service.Implementation
 
         public async Task<bool> UpdateCustomerLastLoginAsync(Guid customerId)
         {
-            var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
-            if (customer == null)
-                return false;
+            try
+            {
+                _logger.LogInformation($"Updating last login time for customer ID: {customerId}");
+                
+                var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
+                if (customer == null)
+                {
+                    _logger.LogWarning($"Cannot update last login: Customer not found with ID {customerId}");
+                    return false;
+                }
 
-            customer.LastLoginDate = DateTime.UtcNow;
-            await _customerRepository.UpdateCustomerAsync(customer);
-            await _customerRepository.SaveChangesAsync();
-            
-            return true;
+                customer.LastLoginDate = DateTime.UtcNow;
+                customer.UpdatedAt = DateTime.UtcNow;
+                
+                await _customerRepository.UpdateCustomerAsync(customer);
+                await _customerRepository.SaveChangesAsync();
+                
+                _logger.LogInformation($"Successfully updated last login time for customer ID: {customerId}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error updating customer last login: {ex.Message}");
+                throw;
+            }
         }
 
         private static CustomerDto MapToCustomerDto(Customer customer)
         {
+            if (customer == null) throw new ArgumentNullException(nameof(customer));
+            
             return new CustomerDto
             {
                 CustomerId = customer.CustomerId,
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
-                Email = customer.Email,
-                Phone = customer.Phone,
-                Address = customer.Address,
-                City = customer.City,
-                State = customer.State,
-                PostalCode = customer.PostalCode,
+                FirstName = customer.FirstName ?? string.Empty,
+                LastName = customer.LastName ?? string.Empty,
+                Email = customer.Email ?? string.Empty,
+                Phone = customer.Phone ?? string.Empty,
+                Address = customer.Address ?? string.Empty,
+                City = customer.City ?? string.Empty,
+                State = customer.State ?? string.Empty,
+                PostalCode = customer.PostalCode ?? string.Empty,
                 RegistrationDate = customer.RegistrationDate,
                 UpdatedAt = customer.UpdatedAt,
                 HasActiveCart = customer.Carts?.Any(c => c.IsActive) ?? false,
-                TotalOrders = 0 // This would need to be populated if we want to track total orders
+                TotalOrders = customer.Orders?.Count ?? 0,
+                ActiveCart = customer.Carts?
+                    .Where(c => c.IsActive)
+                    .Select(cart => new CartDto
+                    {
+                        CartId = cart.CartId,
+                        CustomerId = cart.CustomerId,
+                        CustomerName = $"{customer.FirstName ?? string.Empty} {customer.LastName ?? string.Empty}".Trim(),
+                        CreatedAt = cart.CreatedAt,
+                        UpdatedAt = cart.UpdatedAt,
+                        IsActive = cart.IsActive,
+                        SessionId = cart.SessionId,
+                        Notes = cart.Notes,
+                        TotalAmount = cart.CartItems?.Sum(ci => ci.Cycle?.Price * ci.Quantity) ?? 0,
+                        TotalItems = cart.CartItems?.Sum(ci => ci.Quantity) ?? 0,
+                        CartItems = cart.CartItems?
+                            .Select(ci => new CartItemDto
+                            {
+                                CartItemId = ci.CartItemId,
+                                CartId = ci.CartId,
+                                CycleId = ci.CycleId,
+                                CycleName = ci.Cycle?.ModelName,
+                                Quantity = ci.Quantity,
+                                UnitPrice = ci.Cycle?.Price ?? 0,
+                                TotalPrice = (ci.Cycle?.Price ?? 0) * ci.Quantity,
+                                AddedAt = ci.AddedAt,
+                                UpdatedAt = ci.UpdatedAt
+                            }).ToList() ?? new List<CartItemDto>()
+                    }).FirstOrDefault()
             };
         }
 
         private static CartDto MapToCartDto(Cart cart)
         {
+            var customerName = cart.Customer != null ? $"{cart.Customer.FirstName} {cart.Customer.LastName}" : string.Empty;
+            
             return new CartDto
             {
-                CartId = cart.CartId,
-                CustomerId = cart.CustomerId,
-                CustomerName = $"{cart.Customer?.FirstName} {cart.Customer?.LastName}",
-                CreatedAt = cart.CreatedAt,
-                UpdatedAt = cart.UpdatedAt,
-                IsActive = cart.IsActive,
-                SessionId = cart.SessionId,
-                Notes = cart.Notes,
-                TotalAmount = cart.CartItems?.Sum(ci => ci.Cycle.Price * ci.Quantity) ?? 0,
-                TotalItems = cart.CartItems?.Sum(ci => ci.Quantity) ?? 0,
-                CartItems = cart.CartItems?.Select(ci => new CartItemDto
-                {
-                    CartItemId = ci.CartItemId,
-                    CartId = ci.CartId,
-                    CycleId = ci.CycleId,
-                    CycleName = ci.Cycle.ModelName,
-                    Quantity = ci.Quantity,
-                    UnitPrice = ci.Cycle.Price,
-                    Subtotal = ci.Cycle.Price * ci.Quantity
-                }).ToList() ?? new List<CartItemDto>()
+            CartId = cart.CartId,
+            CustomerId = cart.CustomerId,
+            CustomerName = customerName,
+            CreatedAt = cart.CreatedAt,
+            UpdatedAt = cart.UpdatedAt,
+            IsActive = cart.IsActive,
+            SessionId = cart.SessionId,
+            Notes = cart.Notes,
+            TotalAmount = cart.CartItems?.Sum(ci => ci.Cycle.Price * ci.Quantity) ?? 0,
+            TotalItems = cart.CartItems?.Sum(ci => ci.Quantity) ?? 0,
+            CartItems = cart.CartItems?.Select(ci => new CartItemDto
+            {
+                CartItemId = ci.CartItemId,
+                CartId = ci.CartId,
+                CycleId = ci.CycleId,
+                CycleName = ci.Cycle.ModelName,
+                CycleBrand = ci.Cycle.Brand?.BrandName,
+                CycleType = ci.Cycle.CycleType?.TypeName,
+                CycleDescription = ci.Cycle.Description,
+                CycleImage = ci.Cycle.ImageUrl,
+                Quantity = ci.Quantity,
+                UnitPrice = ci.Cycle.Price,
+                Subtotal = ci.Cycle.Price * ci.Quantity
+            }).ToList() ?? new List<CartItemDto>()
             };
         }
 
@@ -284,27 +353,54 @@ namespace CycleAPI.Service.Implementation
             return await _customerRepository.CustomerExistsAsync(id);
         }
 
-        //public async Task<bool> ValidateCustomerLoginAsync(string email, string password)
-        //{
-        //    var customer = await _customerRepository.GetCustomerByEmailAsync(email);
-        //    if (customer == null)
-        //        return false;
-
-        //    return BCrypt.Net.BCrypt.Verify(password, customer.PasswordHash);
-        //}
-
         public async Task<(bool isValid, CustomerDto? customer)> ValidateCustomerLoginAsync(string email, string password)
         {
-            var customer = await _customerRepository.GetCustomerByEmailAsync(email);
-            
-            if (customer == null || customer.PasswordHash == null || 
-                !BCrypt.Net.BCrypt.Verify(password, customer.PasswordHash))
+            try
             {
-                return (false, null);
-            }
+                _logger.LogInformation($"Validating customer login for email: {email}");
 
-            var customerDto = MapToCustomerDto(customer);
-            return (true, customerDto);
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    _logger.LogWarning("Login attempt with empty email or password");
+                    return (false, null);
+                }
+
+                var customer = await _customerRepository.GetCustomerByEmailAsync(email);
+                
+                if (customer == null)
+                {
+                    _logger.LogWarning($"Login attempt failed: Customer not found with email {email}");
+                    return (false, null);
+                }
+
+                if (!customer.IsActive)
+                {
+                    _logger.LogWarning($"Login attempt failed: Customer account is inactive for email {email}");
+                    return (false, null);
+                }
+
+                if (string.IsNullOrEmpty(customer.PasswordHash))
+                {
+                    _logger.LogError($"Customer {email} has no password hash");
+                    return (false, null);
+                }
+
+                bool passwordValid = BCrypt.Net.BCrypt.Verify(password, customer.PasswordHash);
+                if (!passwordValid)
+                {
+                    _logger.LogWarning($"Login attempt failed: Invalid password for customer {email}");
+                    return (false, null);
+                }
+
+                var customerDto = MapToCustomerDto(customer);
+                _logger.LogInformation($"Customer login validation successful for email: {email}");
+                return (true, customerDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error during customer login validation: {ex.Message}");
+                throw;
+            }
         }
     }
 }

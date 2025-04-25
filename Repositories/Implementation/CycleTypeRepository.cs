@@ -20,14 +20,12 @@ namespace CycleAPI.Repositories.Implementation
         public async Task<CycleType?> GetByIdAsync(Guid id)
         {
             return await _context.CycleTypes
-                .Include(ct => ct.TypeName)
                 .FirstOrDefaultAsync(ct => ct.TypeId == id);
         }
 
         public async Task<IEnumerable<CycleType>> GetAllAsync()
         {
             return await _context.CycleTypes
-                .Include(ct => ct.TypeName)
                 .ToListAsync();
         }
 
@@ -66,9 +64,7 @@ namespace CycleAPI.Repositories.Implementation
 
         public async Task<(IEnumerable<CycleType> Types, int TotalCount)> GetFilteredAsync(CycleTypeQueryParameters parameters)
         {
-            var query = _context.CycleTypes
-                .Include(ct => ct.TypeName)
-                .AsQueryable();
+            var query = _context.CycleTypes.AsQueryable();
 
             // Apply filters
             if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
@@ -78,7 +74,16 @@ namespace CycleAPI.Repositories.Implementation
                                         ct.Description.ToLower().Contains(searchTerm));
             }
 
+            // Apply date range filters
+            if (parameters.CreatedFrom.HasValue)
+            {
+                query = query.Where(ct => ct.CreatedAt >= parameters.CreatedFrom.Value);
+            }
 
+            if (parameters.CreatedTo.HasValue)
+            {
+                query = query.Where(ct => ct.CreatedAt <= parameters.CreatedTo.Value);
+            }
 
             // Get total count before pagination
             var totalCount = await query.CountAsync();

@@ -311,11 +311,18 @@ namespace CycleAPI.Service.Implementation
                     CartId = ci.CartId,
                     CycleId = ci.CycleId,
                     CycleName = ci.Cycle.ModelName,
+                    CycleBrand = ci.Cycle.Brand?.BrandName,
+                    CycleType = ci.Cycle.CycleType?.TypeName,
+                    CycleDescription = ci.Cycle.Description,
+                    CycleImage = ci.Cycle.ImageUrl,
                     UnitPrice = ci.Cycle.Price,
                     Quantity = ci.Quantity,
                     TotalPrice = ci.Cycle.Price * ci.Quantity,
+                    Subtotal = ci.Cycle.Price * ci.Quantity,
                     AddedAt = ci.AddedAt,
-                    UpdatedAt = ci.UpdatedAt
+                    UpdatedAt = ci.UpdatedAt,
+                    Cart = ci.Cart,
+                    Cycle = ci.Cycle
                 }).ToList() ?? new List<CartItemDto>()
             }).ToList();
 
@@ -377,7 +384,7 @@ namespace CycleAPI.Service.Implementation
             {
                 CartId = cart.CartId,
                 CustomerId = cart.CustomerId,
-                CustomerName = customer?.FirstName ?? string.Empty,
+                CustomerName = customer != null ? $"{customer.FirstName} {customer.LastName}".Trim() : string.Empty,
                 CreatedAt = cart.CreatedAt,
                 UpdatedAt = cart.UpdatedAt,
                 IsActive = cart.IsActive,
@@ -385,23 +392,34 @@ namespace CycleAPI.Service.Implementation
                 Notes = cart.Notes,
                 TotalAmount = cartItemDtos.Sum(item => item.TotalPrice),
                 TotalItems = cartItemDtos.Sum(item => item.Quantity),
-                CartItems = cartItemDtos
+                CartItems = cartItemDtos,
+                LastAccessedByUserId = cart.LastAccessedByUserId,
+                LastAccessedByUser = cart.LastAccessedByUser,
+                LastAccessedAt = cart.LastAccessedAt
             };
         }
 
         private CartItemDto MapToCartItemDto(CartItem cartItem, Cycle cycle)
         {
+            decimal totalPrice = cycle.Price * cartItem.Quantity;
             return new CartItemDto
             {
                 CartItemId = cartItem.CartItemId,
                 CartId = cartItem.CartId,
                 CycleId = cartItem.CycleId,
                 CycleName = cycle.ModelName,
+                CycleBrand = cycle.Brand?.BrandName,
+                CycleType = cycle.CycleType?.TypeName,
+                CycleDescription = cycle.Description,
+                CycleImage = cycle.ImageUrl,
                 UnitPrice = cycle.Price,
                 Quantity = cartItem.Quantity,
-                TotalPrice = cycle.Price * cartItem.Quantity,
+                TotalPrice = totalPrice,
+                Subtotal = totalPrice,
                 AddedAt = cartItem.AddedAt,
-                UpdatedAt = cartItem.UpdatedAt
+                UpdatedAt = cartItem.UpdatedAt,
+                Cart = cartItem.Cart,
+                Cycle = cycle
             };
         }
 

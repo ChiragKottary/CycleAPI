@@ -8,6 +8,10 @@ namespace CycleAPI.Models.DTO
         public Guid CartId { get; set; }
         public Guid CycleId { get; set; }
         public string? CycleName { get; set; }
+        public string? CycleBrand { get; set; }
+        public string? CycleType { get; set; }
+        public string? CycleDescription { get; set; }
+        public string? CycleImage { get; set; }
         public decimal UnitPrice { get; set; }
         public int Quantity { get; set; }
         public decimal TotalPrice { get; set; }

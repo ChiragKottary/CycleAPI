@@ -35,6 +35,8 @@ namespace CycleAPI.Data
 
         public DbSet<Payment> Payments { get; set; }
 
+        public DbSet<SalesAnalytics> SalesAnalytics { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -517,6 +519,62 @@ namespace CycleAPI.Data
                 entity.HasOne(p => p.Order)
                     .WithMany()
                     .HasForeignKey(p => p.OrderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<SalesAnalytics>(entity =>
+            {
+                entity.ToTable("sales_analytics");
+                
+                entity.HasKey(e => e.AnalyticsId);
+                
+                entity.Property(e => e.Date)
+                    .IsRequired();
+                
+                entity.Property(e => e.DailyRevenue)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.MonthlyRevenue)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.YearlyRevenue)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.GrossProfit)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.NetProfit)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.ProfitMargin)
+                    .HasColumnType("decimal(5,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.AverageOrderValue)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                    .IsRequired();
+                
+                entity.Property(e => e.UpdatedAt)
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                    .IsRequired();
+
+                entity.HasOne(e => e.TopSellingCycle)
+                    .WithMany()
+                    .HasForeignKey(e => e.TopSellingCycleId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.TopSellingBrand)
+                    .WithMany()
+                    .HasForeignKey(e => e.TopSellingBrandId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

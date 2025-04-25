@@ -18,16 +18,35 @@ namespace CycleAPI.Repositories.Implementation
         public async Task<StockMovement> AddMovementAsync(StockMovement stockMovement)
         {
             stockMovement.MovementDate = DateTime.UtcNow;
+            stockMovement.UpdatedAt = DateTime.UtcNow;
+            
+            // Ensure cycle is loaded
+            if (stockMovement.Cycle == null)
+            {
+                var cycle = await _context.Cycles
+                    .FirstOrDefaultAsync(c => c.CycleId == stockMovement.CycleId);
+                if (cycle == null)
+                {
+                    throw new InvalidOperationException($"Cycle with ID {stockMovement.CycleId} not found");
+                }
+                stockMovement.Cycle = cycle;
+            }
+
             await _context.StockMovement.AddAsync(stockMovement);
             await _context.SaveChangesAsync();
-            return stockMovement;
+
+            // Reload the movement with all relationships
+            return await _context.StockMovement
+                .Include(sm => sm.Cycle)
+                .Include(sm => sm.User)
+                .FirstOrDefaultAsync(sm => sm.MovementId == stockMovement.MovementId);
         }
 
         public async Task<IEnumerable<StockMovement>> GetByCycleIdAsync(Guid cycleId)
         {
             return await _context.StockMovement
                 .Include(sm => sm.Cycle)
-                .Include(sm => sm.UserId)
+                .Include(sm => sm.User)
                 .Where(sm => sm.CycleId == cycleId)
                 .OrderByDescending(sm => sm.MovementDate)
                 .ToListAsync();
@@ -37,7 +56,7 @@ namespace CycleAPI.Repositories.Implementation
         {
             return await _context.StockMovement
                 .Include(sm => sm.Cycle)
-                .Include(sm => sm.UserId)
+                .Include(sm => sm.User)
                 .Where(sm => sm.MovementType == movementType)
                 .OrderByDescending(sm => sm.MovementDate)
                 .ToListAsync();

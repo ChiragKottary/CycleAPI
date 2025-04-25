@@ -44,10 +44,12 @@ namespace CycleAPI.Repositories.Implementation
             var term = searchTerm.ToLower();
             return await _context.Customers
                 .Include(c => c.Carts)
+                    .ThenInclude(cart => cart.CartItems)
+                        .ThenInclude(item => item.Cycle)
                 .Where(c => c.FirstName.ToLower().Contains(term) ||
-                           c.LastName.ToLower().Contains(term) ||
-                           c.Email.ToLower().Contains(term) ||
-                           c.Phone.Contains(searchTerm))
+                            c.LastName.ToLower().Contains(term) ||
+                            c.Email.ToLower().Contains(term) ||
+                            c.Phone.Contains(searchTerm))
                 .ToListAsync();
         }
 

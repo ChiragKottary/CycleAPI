@@ -1,6 +1,7 @@
 ﻿using CycleAPI.Models.Domain;
 using CycleAPI.Models.DTO;
 using CycleAPI.Repositories.Interface;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,109 +12,137 @@ namespace CycleAPI.Repositories.Implementation
     public class TokenRepository : ITokenRepository
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<TokenRepository> _logger;
         private readonly HashSet<string> _revokedTokens;
 
-        public TokenRepository(IConfiguration configuration)
+        public TokenRepository(
+            IConfiguration configuration,
+            ILogger<TokenRepository> logger)
         {
             _configuration = configuration;
+            _logger = logger;
             _revokedTokens = new HashSet<string>();
+
+            // Validate JWT configuration on startup
+            if (string.IsNullOrEmpty(_configuration["Jwt:Key"]))
+                throw new InvalidOperationException("JWT Key is not configured");
+            if (string.IsNullOrEmpty(_configuration["Jwt:Issuer"]))
+                throw new InvalidOperationException("JWT Issuer is not configured");
+            if (string.IsNullOrEmpty(_configuration["Jwt:Audience"]))
+                throw new InvalidOperationException("JWT Audience is not configured");
         }
 
         public async Task<string> CreateTokenAsync(User user, List<string> roles)
         {
-            return await Task.Run(() =>
+            try
             {
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Name, user.Username)
+                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
                 };
 
                 claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-                var key = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
                 var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                 var token = new JwtSecurityToken(
-                    _configuration["Jwt:Issuer"],
-                    _configuration["Jwt:Audience"],
-                    claims,
-                    expires: DateTime.UtcNow.AddHours(Convert.ToDouble(_configuration["Jwt:ExpiryInHours"])),
+                    issuer: _configuration["Jwt:Issuer"],
+                    audience: _configuration["Jwt:Audience"],
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddHours(24),
                     signingCredentials: credentials
                 );
 
-                return new JwtSecurityTokenHandler().WriteToken(token);
-            });
+                return await Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error creating token for user {user.Email}: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<string> CreateCustomerTokenAsync(CustomerDto customer)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not configured")));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var claims = new List<Claim>
+            try
             {
-                new(ClaimTypes.NameIdentifier, customer.CustomerId.ToString()),
-                new(ClaimTypes.Email, customer.Email),
-                new(ClaimTypes.Name, customer.FullName),
-                new(ClaimTypes.Role, "Customer")
-            };
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, customer.CustomerId.ToString()),
+                    new Claim(ClaimTypes.Email, customer.Email),
+                    new Claim(ClaimTypes.Name, $"{customer.FirstName} {customer.LastName}"),
+                    new Claim(ClaimTypes.Role, "Customer")
+                };
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer not configured"),
-                audience: _configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT audience not configured"),
-                claims: claims,
-                expires: DateTime.UtcNow.AddDays(7),
-                signingCredentials: credentials
-            );
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            return await Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
+                var token = new JwtSecurityToken(
+                    issuer: _configuration["Jwt:Issuer"],
+                    audience: _configuration["Jwt:Audience"],
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddDays(7),
+                    signingCredentials: credentials
+                );
+
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                _logger.LogInformation($"Successfully created token for customer {customer.Email}");
+                return await Task.FromResult(tokenString);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error creating token for customer {customer.Email}: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<bool> ValidateTokenAsync(string token)
         {
-            return await Task.Run(() =>
+            if (_revokedTokens.Contains(token))
             {
-                if (_revokedTokens.Contains(token))
-                    return false;
+                _logger.LogWarning("Attempt to validate revoked token");
+                return false;
+            }
 
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
 
-                try
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
-                    tokenHandler.ValidateToken(token, new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidIssuer = _configuration["Jwt:Issuer"],
-                        ValidAudience = _configuration["Jwt:Audience"],
-                        ClockSkew = TimeSpan.Zero
-                    }, out SecurityToken validatedToken);
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
 
-                    return validatedToken != null;
-                }
-                catch
-                {
-                    return false;
-                }
-            });
+                return await Task.FromResult(validatedToken != null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Token validation failed: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<bool> RevokeTokenAsync(string token)
         {
-            return await Task.Run(() =>
+            if (string.IsNullOrEmpty(token))
             {
-                if (string.IsNullOrEmpty(token))
-                    return false;
+                _logger.LogWarning("Attempt to revoke null or empty token");
+                return false;
+            }
 
-                _revokedTokens.Add(token);
-                return true;
-            });
+            _revokedTokens.Add(token);
+            _logger.LogInformation("Token successfully revoked");
+            return await Task.FromResult(true);
         }
     }
 }

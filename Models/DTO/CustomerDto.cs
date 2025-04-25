@@ -2,7 +2,7 @@
 
 namespace CycleAPI.Models.DTO
 {
-    public class    CustomerDto
+    public class CustomerDto
     {
         public Guid CustomerId { get; set; }
         public string FirstName { get; set; } = string.Empty;
@@ -18,6 +18,7 @@ namespace CycleAPI.Models.DTO
         public DateTime UpdatedAt { get; set; }
         public bool HasActiveCart { get; set; }
         public int TotalOrders { get; set; }
+        public CartDto? ActiveCart { get; set; }
 
         // Navigation properties
         public ICollection<Order> Orders { get; set; } = new List<Order>();
