@@ -14,5 +14,6 @@ namespace CycleAPI.Repositories.Interface
         Task<bool> DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
         Task<bool> SaveChangesAsync();
+        Task<Guid> GetUserIdByEmailAsync(string email);
     }
 }

@@ -3,9 +3,7 @@ using CycleAPI.Models.Domain;
 using CycleAPI.Models.DTO;
 using CycleAPI.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace CycleAPI.Repositories.Implementation
 {
@@ -154,6 +152,14 @@ namespace CycleAPI.Repositories.Implementation
         public async Task<bool> SaveChangesAsync()
         {
             return (await _context.SaveChangesAsync() > 0);
+        }
+
+        public async Task<Guid> GetUserIdByEmailAsync(string email)
+        {
+            var user = await _context.User
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            return user?.UserId ?? Guid.Empty;
         }
     }
 }

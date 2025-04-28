@@ -3,6 +3,7 @@ using CycleAPI.Models.DTO.Common;
 using CycleAPI.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CycleAPI.Controllers
 {
@@ -26,21 +27,22 @@ namespace CycleAPI.Controllers
         {
             _logger.LogInformation($"Getting filtered carts. Page: {parameters.Page}, PageSize: {parameters.PageSize}");
             var pagedResult = await _cartService.GetFilteredCartsAsync(parameters);
-            return Ok(pagedResult);
+            return Content(JsonSerializer.Serialize(pagedResult, GetJsonSerializerOptions()), "application/json");
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet]
+        [Route("{cartId:guid}")]
         //[Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CartDto>> GetCartById(Guid id)
+        public async Task<IActionResult> GetCartById([FromRoute] Guid cartId)
         {
-            var cart = await _cartService.GetCartByIdAsync(id);
+            var cart = await _cartService.GetCartByIdAsync(cartId);
             if (cart == null)
             {
                 return NotFound("Cart not found");
             }
-            return Ok(cart);
+            return Content(JsonSerializer.Serialize(cart, GetJsonSerializerOptions()), "application/json");
         }
 
         [HttpPost("{cartId:guid}/items")]
@@ -53,7 +55,7 @@ namespace CycleAPI.Controllers
             try
             {
                 var cartItem = await _cartService.AddItemToCartAsync(cartId, request);
-                return Ok(cartItem);
+                return Content(JsonSerializer.Serialize(cartItem, GetJsonSerializerOptions()), "application/json");
             }
             catch (ArgumentException ex)
             {
@@ -75,7 +77,7 @@ namespace CycleAPI.Controllers
             try
             {
                 var cartItem = await _cartService.UpdateCartItemQuantityAsync(cartItemId, request);
-                return Ok(cartItem);
+                return Content(JsonSerializer.Serialize(cartItem, GetJsonSerializerOptions()), "application/json");
             }
             catch (ArgumentException ex)
             {
@@ -129,6 +131,16 @@ namespace CycleAPI.Controllers
         {
             var total = await _cartService.CalculateCartTotalAsync(cartId);
             return Ok(total);
+        }
+
+        // Add this method to configure JSON options with ReferenceHandler.Preserve
+        private JsonSerializerOptions GetJsonSerializerOptions()
+        {
+            return new JsonSerializerOptions
+            {
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve,
+                WriteIndented = true
+            };
         }
     }
 }

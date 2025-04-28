@@ -82,7 +82,14 @@ namespace CycleAPI.Controllers
                     return ValidationProblem(ModelState);
                 }
 
-                _logger.LogInformation($"Login successful for email: {req.Email}");
+                // Get the user ID from the repository
+                var userId = await authRepository.GetUserIdByEmailAsync(req.Email);
+                if (userId != Guid.Empty)
+                {
+                    loginResponse.UserId = userId;
+                }
+
+                _logger.LogInformation($"Login successful for email: {req.Email} with userId: {userId}");
                 return Ok(loginResponse);
             }
             catch (Exception ex)

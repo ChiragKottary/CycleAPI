@@ -1,5 +1,6 @@
 ﻿using CycleAPI.Models.Domain;
 using CycleAPI.Models.DTO;
+using CycleAPI.Models.DTO.Common;
 using CycleAPI.Models.Enums;
 using CycleAPI.Repositories.Implementation;
 using CycleAPI.Repositories.Interface;
@@ -15,11 +16,63 @@ namespace CycleAPI.Controllers
     {
         private readonly IStockRepository stockRepository;
         private readonly ICycleRepository cycleRepository;
+        private readonly IStockMovementRepository _stockMovementRepository;
 
-        public StockController(IStockRepository stockRepository, ICycleRepository cycleRepository)
+        public StockController(
+            IStockRepository stockRepository, 
+            ICycleRepository cycleRepository,
+            IStockMovementRepository stockMovementRepository)
         {
             this.stockRepository = stockRepository;
             this.cycleRepository = cycleRepository;
+            _stockMovementRepository = stockMovementRepository;
+        }
+
+        [HttpGet("cycle/{cycleId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<int>> GetCycleStock(Guid cycleId)
+        {
+            var cycle = await cycleRepository.GetByIdAsync(cycleId);
+            if (cycle == null)
+            {
+                return NotFound("Cycle not found");
+            }
+
+            var stockLevel = await _stockMovementRepository.GetCurrentStockLevelAsync(cycleId);
+            return Ok(new { cycleId, stockLevel });
+        }
+
+        [HttpGet("movements")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<PagedResult<StockMovement>>> GetStockMovements([FromQuery] StockMovementQueryParameters parameters)
+        {
+            var (movements, totalCount) = await _stockMovementRepository.GetFilteredAsync(parameters);
+            
+            var pagedResult = new PagedResult<StockMovement>
+            {
+                Items = movements,
+                TotalItems = totalCount,
+                PageNumber = parameters.Page,
+                PageSize = parameters.PageSize
+            };
+
+            return Ok(pagedResult);
+        }
+
+        [HttpGet("cycle/{cycleId:guid}/movements")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<StockMovement>>> GetCycleStockMovements(Guid cycleId)
+        {
+            var cycle = await cycleRepository.GetByIdAsync(cycleId);
+            if (cycle == null)
+            {
+                return NotFound("Cycle not found");
+            }
+
+            var movements = await _stockMovementRepository.GetByCycleIdAsync(cycleId);
+            return Ok(movements);
         }
 
         [HttpPost]

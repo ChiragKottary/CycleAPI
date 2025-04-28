@@ -42,12 +42,12 @@ namespace CycleAPI.Controllers
                 return NotFound();
 
             // Only allow admin/employee or the customer who owns the order
-            if (!User.IsInRole("Admin") && !User.IsInRole("Employee"))
-            {
+            //if (!User.IsInRole("Admin") && !User.IsInRole("Employee"))
+            //{
                 var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (!Guid.TryParse(userIdStr, out var userId) || userId != order.CustomerId)
                     return Forbid();
-            }
+            //}
 
             return Ok(order);
         }

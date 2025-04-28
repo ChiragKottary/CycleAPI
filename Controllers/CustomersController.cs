@@ -95,6 +95,9 @@ namespace CycleAPI.Controllers
 
             try
             {
+                // Ensure IsActive is set to true by default
+                customerDto.IsActive = true;
+                
                 var createdCustomer = await _customerService.CreateCustomerAsync(customerDto);
                 return CreatedAtAction(nameof(GetCustomerById), new { id = createdCustomer.CustomerId }, createdCustomer);
             }
