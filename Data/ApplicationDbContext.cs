@@ -314,6 +314,12 @@ namespace CycleAPI.Data
                 entity.Property(e => e.LastName)
                     .IsRequired()
                     .HasMaxLength(100);
+                
+                entity.Property(e => e.PhoneNumber)
+                    .HasMaxLength(20);
+                
+                entity.Property(e => e.Address)
+                    .HasMaxLength(200);
 
                 entity.Property(e => e.IsActive)
                     .HasDefaultValue(true);

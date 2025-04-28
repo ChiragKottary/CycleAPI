@@ -14,5 +14,6 @@ namespace CycleAPI.Service.Interface
         Task<IEnumerable<OrderDto>> GetOrdersByStatusAsync(OrderStatus status);
         Task<bool> UpdateOrderStatusAsync(Guid orderId, OrderStatus status, Guid? processedByUserId = null);
         Task<OrderDto> CreateOrderFromCartAsync(CreateOrderFromCartDto createOrderDto);
+        Task<bool> ExistsAsync(Guid orderId);
     }
 }

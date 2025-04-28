@@ -10,7 +10,7 @@ namespace CycleAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize]
+    //[Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -124,17 +124,39 @@ namespace CycleAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] OrderStatus status)
+        public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] string status)
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(userIdStr, out var userId))
-                return BadRequest("Invalid user ID");
-
-            var success = await _orderService.UpdateOrderStatusAsync(id, status, userId);
-            if (!success)
-                return NotFound();
-
-            return Ok();
+            _logger.LogInformation($"Updating order status: Order ID = {id}, Status = {status}");
+            
+            // Check if order exists (this is now a redundant check but keeps the API behavior consistent)
+            if (!await _orderService.ExistsAsync(id))
+            {
+                _logger.LogWarning($"Order with ID {id} not found");
+                return NotFound("Order not found");
+            }
+            
+            // Parse the string to OrderStatus enum
+            if (!Enum.TryParse<OrderStatus>(status, true, out var orderStatus))
+            {
+                _logger.LogWarning($"Invalid status value received: {status}");
+                string validValues = string.Join(", ", Enum.GetNames(typeof(OrderStatus)));
+                return BadRequest($"Invalid order status. Valid values are: {validValues}");
+            }
+            
+            // Call the service method to update the status
+            var success = await _orderService.UpdateOrderStatusAsync(id, orderStatus, null);
+            
+            if (success)
+            {
+                _logger.LogInformation($"Successfully updated order {id} status to {orderStatus}");
+                return Ok(new { Message = $"Order status updated to {orderStatus}" });
+            }
+            else
+            {
+                // Even though we checked existence above, something could have gone wrong in the update itself
+                _logger.LogWarning($"Failed to update order status for order ID: {id}");
+                return BadRequest("Unable to update order status. Please try again later.");
+            }
         }
 
         [HttpPost("from-cart")]

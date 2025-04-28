@@ -23,34 +23,124 @@ namespace CycleAPI.Repositories.Implementation
             _logger = logger;
         }
 
-        public async Task<User?> AddAsync(User user)
+        public async Task<RegisterResponseDto> AddAsync(User user)
         {
-            var existingUser = await _context.User
-                .FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email.ToLower());
-
-            if (existingUser != null)
-                return null;
-
-            user.CreatedAt = DateTime.UtcNow;
-            user.UpdatedAt = DateTime.UtcNow;
-            user.IsActive = true;
-
-            // Set default role (assuming you have a default employee role)
-            var employeeRole = await _context.Role.FirstOrDefaultAsync(r => r.RoleName == "Employee");
-            if (employeeRole != null)
+            try
             {
-                user.RoleId = employeeRole.RoleId;
+                // Check if user already exists
+                var existingUser = await _context.User
+                    .FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email.ToLower());
+
+                if (existingUser != null)
+                {
+                    _logger.LogWarning($"User with email {user.Email} already exists");
+                    return new RegisterResponseDto
+                    {
+                        Success = false,
+                        Message = "User with this email already exists",
+                        Email = user.Email
+                    };
+                }
+
+                // Set basic user properties
+                if (user.UserId == Guid.Empty)
+                {
+                    user.UserId = Guid.NewGuid();
+                }
+                
+                user.CreatedAt = DateTime.UtcNow;
+                user.UpdatedAt = DateTime.UtcNow;
+                user.IsActive = true;
+                user.Username = user.Email.ToLower();
+                
+                // Log role assignment attempt
+                _logger.LogInformation("Attempting to assign Employee role to new user");
+                
+                // Find employee role
+                var employeeRole = await _context.Role.FirstOrDefaultAsync(r => r.RoleName == "Employee");
+                if (employeeRole == null)
+                {
+                    // Check if any roles exist at all
+                    var roleCount = await _context.Role.CountAsync();
+                    if (roleCount == 0)
+                    {
+                        _logger.LogCritical("No roles found in database. Database may not be properly initialized.");
+                        return new RegisterResponseDto
+                        {
+                            Success = false,
+                            Message = "System configuration error: No roles available in the system."
+                        };
+                    }
+                    
+                    _logger.LogError("Employee role not found in database. Available roles:");
+                    var availableRoles = await _context.Role.ToListAsync();
+                    foreach (var role in availableRoles)
+                    {
+                        _logger.LogInformation($"Role: {role.RoleName}, ID: {role.RoleId}");
+                    }
+                    
+                    // Fall back to first available role if no "Employee" role
+                    employeeRole = availableRoles.FirstOrDefault();
+                    if (employeeRole != null)
+                    {
+                        _logger.LogWarning($"Falling back to role: {employeeRole.RoleName}");
+                        user.RoleId = employeeRole.RoleId;
+                    }
+                    else
+                    {
+                        return new RegisterResponseDto
+                        {
+                            Success = false,
+                            Message = "Default role not found. Registration failed."
+                        };
+                    }
+                }
+                else
+                {
+                    user.RoleId = employeeRole.RoleId;
+                    _logger.LogInformation($"Assigned role '{employeeRole.RoleName}' with ID: {employeeRole.RoleId}");
+                }
+
+                // Add user to database
+                await _context.User.AddAsync(user);
+                var saveResult = await SaveChangesAsync();
+
+                if (!saveResult)
+                {
+                    _logger.LogError("Failed to save user to database. No rows affected.");
+                    return new RegisterResponseDto
+                    {
+                        Success = false,
+                        Message = "Failed to save user to database"
+                    };
+                }
+
+                _logger.LogInformation($"User registered successfully: ID={user.UserId}, Email={user.Email}");
+                return new RegisterResponseDto
+                {
+                    Success = true,
+                    Message = "User registered successfully",
+                    UserId = user.UserId,
+                    Email = user.Email,
+                    Role = employeeRole.RoleName
+                };
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("Employee role not found in database");
-                return null;
+                _logger.LogError($"Error registering user: {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
+                
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                return new RegisterResponseDto
+                {
+                    Success = false,
+                    Message = $"An error occurred during registration: {ex.Message}"
+                };
             }
-
-            await _context.User.AddAsync(user);
-            await SaveChangesAsync();
-
-            return user;
         }
 
         public async Task<User?> GetByIdAsync(Guid id)
@@ -160,6 +250,42 @@ namespace CycleAPI.Repositories.Implementation
                 .FirstOrDefaultAsync(u => u.Email == email);
 
             return user?.UserId ?? Guid.Empty;
+        }
+
+        public async Task<IEnumerable<User>> GetAllEmployeesAsync()
+        {
+            return await _context.User
+                .Include(u => u.Role)
+                .ToListAsync();
+        }
+
+        public async Task<bool> DeactivateEmployeeAsync(Guid id)
+        {
+            var employee = await GetByIdAsync(id);
+            if (employee == null)
+                return false;
+
+            employee.IsActive = false;
+            employee.UpdatedAt = DateTime.UtcNow;
+            _context.Entry(employee).State = EntityState.Modified;
+            return await SaveChangesAsync();
+        }
+
+        public async Task<bool> ActivateEmployeeAsync(Guid id)
+        {
+            var employee = await GetByIdAsync(id);
+            if (employee == null)
+                return false;
+
+            employee.IsActive = true;
+            employee.UpdatedAt = DateTime.UtcNow;
+            _context.Entry(employee).State = EntityState.Modified;
+            return await SaveChangesAsync();
+        }
+
+        public async Task<bool> RoleExistsAsync(Guid roleId)
+        {
+            return await _context.Role.AnyAsync(r => r.RoleId == roleId);
         }
     }
 }

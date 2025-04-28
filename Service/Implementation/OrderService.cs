@@ -260,18 +260,21 @@ namespace CycleAPI.Service.Implementation
 
         public async Task<bool> UpdateOrderStatusAsync(Guid orderId, OrderStatus status, Guid? processedByUserId = null)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
-            if (order == null)
-                return false;
+            try
+            {
+                // First check if order exists using the simpler ExistsAsync method
+                if (!await _orderRepository.ExistsAsync(orderId))
+                    return false;
 
-            order.Status = status;
-            order.ProcessedByUserId = processedByUserId;
-            order.ProcessedDate = status == OrderStatus.Processing ? DateTime.UtcNow : order.ProcessedDate;
-            order.ShippedDate = status == OrderStatus.Shipped ? DateTime.UtcNow : order.ShippedDate;
-            order.DeliveredDate = status == OrderStatus.Delivered ? DateTime.UtcNow : order.DeliveredDate;
-            
-            await _orderRepository.UpdateOrderAsync(order);
-            return await _orderRepository.SaveChangesAsync();
+                // Use direct status update method from repository instead of full entity update
+                return await _orderRepository.UpdateStatusAsync(orderId, status);
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't throw it up the stack
+                Console.WriteLine($"Error updating order status: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<PagedResult<OrderDto>> GetFilteredOrdersAsync(OrderQueryParameters parameters)
@@ -336,6 +339,11 @@ namespace CycleAPI.Service.Implementation
                 CreatedAt = item.CreatedAt,
                 UpdatedAt = item.UpdatedAt
             };
+        }
+
+        public async Task<bool> ExistsAsync(Guid orderId)
+        {
+            return await _orderRepository.ExistsAsync(orderId);
         }
     }
 }

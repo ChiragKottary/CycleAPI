@@ -26,6 +26,8 @@ namespace CycleAPI.Data
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(150);
                 entity.HasIndex(u => u.Email).IsUnique();
+                entity.Property(u => u.PhoneNumber).HasMaxLength(20);
+                entity.Property(u => u.Address).HasMaxLength(200);
                 entity.Property(b => b.CreatedAt)
                       .HasDefaultValueSql("CURRENT_TIMESTAMP")
                       .ValueGeneratedOnAdd();
@@ -86,6 +88,8 @@ namespace CycleAPI.Data
                 PasswordHash = hashedPassword,
                 FirstName = "Admin",
                 LastName = "User",
+                PhoneNumber = "1234567890", // Added missing required field
+                Address = "Admin Address", // Added missing required field
                 RoleId = Guid.Parse(AdminRoleId),
                 IsActive = true,
                 CreatedAt = fixedDate,

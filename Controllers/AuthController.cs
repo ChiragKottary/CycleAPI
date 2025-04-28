@@ -28,33 +28,55 @@ namespace CycleAPI.Controllers
         }
 
         [HttpPost("register/Employee")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegisterEmployee([FromBody] RegisterRequestDto req)
         {
             try 
             {
+                // Validate request
+                if (string.IsNullOrEmpty(req.Email) || string.IsNullOrEmpty(req.Password) || 
+                    string.IsNullOrEmpty(req.FirstName) || string.IsNullOrEmpty(req.LastName))
+                {
+                    _logger.LogWarning("Registration failed: Required fields missing");
+                    return BadRequest(new { Success = false, Message = "Email, password, first name, and last name are required" });
+                }
+                
                 var user = new User
                 {
+                    UserId = Guid.NewGuid(), // Explicitly assign a new GUID
                     Email = req.Email,
                     FirstName = req.FirstName,
                     LastName = req.LastName,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
+                    PhoneNumber = req.PhoneNumber,
+                    Address = req.Address
                 };
-                var exist = await authRepository.AddAsync(user);
+                
+                _logger.LogInformation($"Attempting to register employee with email {req.Email}");
+                var response = await authRepository.AddAsync(user);
 
-                if (exist == null)
+                if (!response.Success)
                 {
-                    _logger.LogWarning($"Registration failed: User already exists with email {req.Email}");
-                    ModelState.AddModelError("Email", "User already exists with this email.");
-                    return ValidationProblem(ModelState);
+                    _logger.LogWarning($"Registration failed: {response.Message}");
+                    return BadRequest(response);
                 }
                 
-                _logger.LogInformation($"Employee registered successfully with email {req.Email}");
-                return Ok("Employee registered successfully." + exist);
+                _logger.LogInformation($"Employee registered successfully with email {req.Email} and ID {response.UserId}");
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error during employee registration: {ex.Message}");
-                return StatusCode(500, "An error occurred during registration.");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
+                
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                return StatusCode(500, new { Success = false, Message = "An error occurred during registration." });
             }
         }
 
