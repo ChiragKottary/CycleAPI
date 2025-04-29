@@ -95,6 +95,9 @@ namespace CycleAPI.Repositories.Implementation
 
         public async Task<SalesAnalytics> UpdateDailyAnalyticsAsync(DateTime date)
         {
+            // Ensure incoming date is in UTC
+            date = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
+            
             var analytics = await _context.SalesAnalytics
                 .FirstOrDefaultAsync(x => x.Date.Date == date.Date)
                 ?? new SalesAnalytics { Date = date };
@@ -139,17 +142,19 @@ namespace CycleAPI.Repositories.Implementation
                 analytics.TopSellingBrandId = topBrand.Key;
             }
 
-            // Calculate monthly metrics
-            var monthStart = new DateTime(date.Year, date.Month, 1);
-            var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+            // Calculate monthly metrics - ensure dates are UTC
+            var monthStart = DateTime.SpecifyKind(new DateTime(date.Year, date.Month, 1), DateTimeKind.Utc);
+            var monthEnd = DateTime.SpecifyKind(monthStart.AddMonths(1).AddDays(-1), DateTimeKind.Utc);
+            
             analytics.MonthlyRevenue = await _context.Orders
                 .Where(o => o.OrderDate.Date >= monthStart && o.OrderDate.Date <= monthEnd)
                 .Where(o => o.Status != OrderStatus.Cancelled)
                 .SumAsync(o => o.TotalAmount);
 
-            // Calculate yearly metrics
-            var yearStart = new DateTime(date.Year, 1, 1);
-            var yearEnd = new DateTime(date.Year, 12, 31);
+            // Calculate yearly metrics - ensure dates are UTC
+            var yearStart = DateTime.SpecifyKind(new DateTime(date.Year, 1, 1), DateTimeKind.Utc);
+            var yearEnd = DateTime.SpecifyKind(new DateTime(date.Year, 12, 31), DateTimeKind.Utc);
+            
             analytics.YearlyRevenue = await _context.Orders
                 .Where(o => o.OrderDate.Date >= yearStart && o.OrderDate.Date <= yearEnd)
                 .Where(o => o.Status != OrderStatus.Cancelled)

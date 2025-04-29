@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CycleAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1db478a1fca1e1e5cea4acfdc07b3e3ce43bf2dd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+223edd579cf26f06b2c63260bb094e5a0b3c4b50")]
 [assembly: System.Reflection.AssemblyProductAttribute("CycleAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CycleAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
